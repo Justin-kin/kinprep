@@ -371,7 +371,7 @@
     }
     const cta = s.kind === 'renfo' ? `<button class="btn primary grow" data-a="start">${ic('play', 1)} ${lg ? 'Refaire la séance' : 'Démarrer la séance'}</button><button class="btn" data-a="quicklog">${lg ? 'Modifier' : 'Déjà faite'}</button>`
       : s.kind === 'cardio' ? `<button class="btn primary grow" data-a="cardiolog">${lg ? 'Modifier mon relevé' : 'Enregistrer la séance'}</button>`
-      : s.kind === 'test' ? `<button class="btn primary grow" data-a="savetests">Enregistrer les tests</button>` : `<button class="btn primary grow" data-a="quicklog">C'est fait</button>`;
+      : s.kind === 'test' ? `<button class="btn primary grow" data-a="savetests">Enregistrer les tests</button>${lg ? `<button class="btn" data-a="dellog" data-v="${lg.id}">Supprimer</button>` : ''}` : `<button class="btn primary grow" data-a="quicklog">C'est fait</button>`;
     return top + `<div class="stack">${body}</div><div class="cta"><div>${cta}${KP.CONFIG.ai && SB.user() ? `<button class="btn ghost" data-a="ai" aria-label="Demander à l'assistant">${ic('chat')}</button>` : ''}</div></div>`;
   }
   function exRow(it, tag) {
@@ -448,7 +448,7 @@
         <div class="row" style="gap:10px"><label class="f grow">FC moyenne<input type="number" id="cl_fc" inputmode="numeric" value="${lg.fc || ''}"></label><label class="f grow">Dénivelé + (m)<input type="number" id="cl_dplus" inputmode="numeric" value="${lg.dplus || ''}"></label></div>
         <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE)</span>${rpePicker('cl_rpe', lg.rpe || 7, true)}</div>
         <label class="f">Ressenti<textarea id="cl_note" placeholder="Ex. : dur mais je pouvais faire un peu plus">${esc(lg.note || '')}</textarea></label>
-        <button class="btn primary block" type="submit">Enregistrer</button></form>`;
+        <button class="btn primary block" type="submit">Enregistrer</button>${lg.id ? `<button class="btn ghost block" type="button" data-a="dellog" data-v="${lg.id}">Supprimer ce relevé</button>` : ''}</form>`;
     }
     if (sh.t === 'quicklog') {
       const s = curSess(), lg = logOf(st.page.n, s.key) || {};
@@ -765,7 +765,7 @@
     rpe: el => { const id = el.dataset.id; document.getElementById(id).value = el.dataset.v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); if (id === 'pl_rpe' && st.player) st.player.rpe = +el.dataset.v; },
     quicklog: () => { st.sheet = { t: 'quicklog' }; renderOverlays(); },
     cardiolog: () => { st.sheet = { t: 'cardiolog' }; renderOverlays(); },
-    dellog: (el, v) => { D().logs = D().logs.filter(l => l.id !== v); save(); ST.sync({ t: 'dellog', id: v }); st.sheet = null; toast('Relevé supprimé'); render(); },
+    dellog: (el, v) => { D().logs = D().logs.filter(l => l.id !== v); save(); ST.sync({ t: 'dellog', id: v }); st.sheet = null; st.page = null; toast('Relevé supprimé'); render(); },
     savetests: () => {
       const s = curSess(), t = {}; G.TESTS.forEach(x => { const val = document.getElementById('t_' + x.id).value; if (val) t[x.id] = +String(val).replace(',', '.'); });
       if (!Object.keys(t).length) { toast('Saisis au moins un résultat'); return; }
