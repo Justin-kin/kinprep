@@ -79,7 +79,7 @@
     const essential = w.sessions.filter(s => s.essential === true);
     const doneEss = essential.filter(s => logOf(n, s.key)).length;
     return `
-    <header class="top"><div class="brand"><span class="flag" aria-hidden="true"><i></i><i></i><i></i></span>Kin<b>Prep</b></div>
+    <header class="top"><div class="brand"><img class="ring" src="icons/ring.png" alt="" aria-hidden="true">Kin<b>Prep</b></div>
       <div class="wknav"><button class="icon-btn" data-a="wk" data-v="-1" aria-label="Semaine précédente" ${n <= C.FIRST ? 'disabled' : ''}>${ic('left')}</button>
       <div class="wk-label"><div class="w num">${n <= 0 ? `Bêta ${n + 4}<span class="muted" style="font-size:13px"> /4</span>` : `Semaine ${n}<span class="muted" style="font-size:13px"> /${C.NWEEKS}</span>`}</div><div class="d">${C.weekLabel(n)}</div></div>
       <button class="icon-btn" data-a="wk" data-v="1" aria-label="Semaine suivante" ${n >= C.NWEEKS ? 'disabled' : ''}>${ic('right')}</button></div></header>
@@ -373,7 +373,7 @@
   function onboarding() {
     const step = st.obStep || 1;
     return `<div style="padding-block:24px 40px" class="stack">
-      <div><div class="brand" style="font-size:34px"><span class="flag" aria-hidden="true" style="width:26px;height:19px"><i></i><i></i><i></i></span>Kin<b>Prep</b></div><p class="muted" style="margin:6px 0 0">${esc((KP.CONFIG || {}).teamName || '')} · saison 2026-2027</p></div>
+      <div class="wclogo"><img src="icons/logo-wc.png" alt="Kin-Ball World Cup, Belgium 2027"></div><div><div class="brand" style="font-size:34px">Kin<b>Prep</b></div><p class="muted" style="margin:6px 0 0">${esc((KP.CONFIG || {}).teamName || '')} · saison 2026-2027</p></div>
       ${step === 1 ? `<div class="card" style="background:var(--ink);color:var(--surface)"><h2 style="font-size:26px">Ta prépa physique, adaptée à toi</h2><p style="margin:8px 0 0;opacity:.85">1 séance de renfo et 1 séance de cardio par semaine comme base, ajustées à ton matériel, ton rôle et ta semaine (club, nationaux, matchs).</p>
         <button class="btn sm" style="margin-top:12px;background:var(--surface);color:var(--ink)" data-a="sample">Voir avec un profil d'exemple</button></div>` : ''}
       <div class="row small muted"><span>Étape ${step} sur 4</span><span class="grow"><span class="prog" style="display:block"><i style="width:${step * 25}%"></i></span></span></div>
