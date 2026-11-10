@@ -226,8 +226,10 @@
   function coachView(me) {
     const t = st.team; if (!t) return '<div class="card muted">Chargement…</div>';
     const admin = me.role === 'admin', myId = SB.user().id;
-    const cw = curWeek(), nW = st.coachWeeks || 6;
-    const weeks = []; for (let n = cw; n >= Math.max(C.FIRST, cw - nW + 1); n--) weeks.push(n);
+    const cw = curWeek(), rg = st.coachRange || '6';
+    const weeks = []; if (rg === 'cur') weeks.push(cw); else if (rg === 'prev') weeks.push(Math.max(C.FIRST, cw - 1));
+    else for (let n = cw; n >= Math.max(C.FIRST, cw - (rg === 'all' ? 99 : 6) + 1); n--) weeks.push(n);
+    const multi = weeks.length > 1;
     const pend = t.profs.filter(p => !p.approved && p.role === 'joueur');
     const lgOf = id => t.logs.filter(l => l.user_id === id);
     // joueurs suivis : comptes validés qui jouent (le staff n'apparaît que s'il encode des séances)
@@ -239,16 +241,17 @@
       const tot = weeks.reduce((a, n) => a + lg.filter(l => l.week === n).reduce((x, l) => x + ((l.data || {}).dur || 0), 0), 0);
       return `<tr data-a="coach-player" data-v="${p.id}" style="cursor:pointer"><td><b>${esc(p.display_name)}</b>${pain.length ? ' <span class="tag ev COMP" title="Douleur déclarée">!</span>' : ''}<br><span class="muted">${esc((KP.ROLES.find(r => r.id === (p.data || {}).role) || {}).label || '')}${ci && ci.data && ci.data.fatigue ? ' · fatigue ' + ci.data.fatigue + '/5' : ''}</span></td>
         ${weeks.map(n => { const l = lg.filter(x => x.week === n), m = l.reduce((a, x) => a + ((x.data || {}).dur || 0), 0); return `<td class="num" style="white-space:nowrap">${hm(m)}${l.length ? `<br><span class="muted small">${l.length} séance${l.length > 1 ? 's' : ''}</span>` : ''}</td>`; }).join('')}
-        <td class="num" style="white-space:nowrap"><b>${hm(tot)}</b></td></tr>`;
+        ${multi ? `<td class="num" style="white-space:nowrap"><b>${hm(tot)}</b></td>` : ''}</tr>`;
     }).join('');
     const staffCard = admin ? `<div class="card"><div class="eyebrow">Comptes et rôles</div><p class="small muted" style="margin:6px 0 0">Les coachs voient les résultats de tous les joueurs, sans pouvoir modifier les comptes.</p>
       ${t.profs.filter(p => p.id !== myId && (p.approved || p.role !== 'joueur')).sort((a, b) => a.display_name.localeCompare(b.display_name)).map(p => `<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--line)"><div class="row"><b class="grow">${esc(p.display_name)}</b><span class="tag">${ROLE_LB[p.role] || p.role}</span></div><div class="row wrap" style="gap:6px;margin-top:6px">
         ${p.role === 'admin' ? '' : p.role === 'coach' ? `<button class="btn sm ghost" data-a="setrole" data-v="${p.id}" data-r="joueur">Retirer coach</button>` : `<button class="btn sm ghost" data-a="setrole" data-v="${p.id}" data-r="coach">Nommer coach</button>`}
         ${p.role === 'joueur' ? `<button class="btn sm ghost" data-a="unapprove" data-v="${p.id}">Retirer l'accès</button>` : ''}</div></div>`).join('')}</div>` : '';
     return `${pend.length ? `<div class="card"><div class="eyebrow">Comptes en attente</div>${pend.map(p => `<div class="row" style="margin-top:10px"><span class="grow">${esc(p.display_name)}</span>${admin ? `<button class="btn sm primary" data-a="approve" data-v="${p.id}">Valider</button>` : '<span class="small muted">validation par l\'admin</span>'}</div>`).join('')}</div>` : ''}
-      <div class="card"><div class="row"><div class="eyebrow grow">Temps d'entraînement encodé</div><button class="link small" data-a="coachweeks">${nW === 6 ? 'Toute la saison' : '6 dernières semaines'}</button></div>
+      <div class="card"><div class="eyebrow">Temps d'entraînement encodé</div>
+        <div class="seg" style="margin-top:10px">${[['cur', 'Cette sem.'], ['prev', 'Sem. préc.'], ['6', '6 sem.'], ['all', 'Saison']].map(([v, l]) => `<button class="${rg === v ? 'on' : ''}" data-a="coachrange" data-v="${v}">${l}</button>`).join('')}</div>
         <p class="small muted" style="margin:6px 0 0">Total des séances notées par chaque joueur (renfo, cardio, tests, autres activités). Touche un joueur pour voir le détail.</p>
-        <div class="tbl" style="margin-top:8px"><table><thead><tr><th>Joueur</th>${weeks.map(n => `<th>${WN(n)}</th>`).join('')}<th>Total</th></tr></thead><tbody>${rows || `<tr><td colspan="${weeks.length + 2}" class="muted">Aucun joueur validé.</td></tr>`}</tbody></table></div></div>
+        <div class="tbl" style="margin-top:8px"><table><thead><tr><th>Joueur</th>${weeks.map(n => `<th>${WN(n)}</th>`).join('')}${multi ? '<th>Total</th>' : ''}</tr></thead><tbody>${rows || `<tr><td colspan="${weeks.length + 2}" class="muted">Aucun joueur validé.</td></tr>`}</tbody></table></div></div>
       ${staffCard}`;
   }
   function playerSheet(id) {
@@ -899,7 +902,7 @@
     unapprove: async (el, v) => { try { await SB.approve(v, false); st.feed = null; render(); toast('Accès retiré'); } catch (e) { toast(e.message); } },
     setrole: async (el, v) => { try { await SB.setRole(v, el.dataset.r); st.feed = null; render(); toast(el.dataset.r === 'coach' ? 'Coach ajouté' : 'Rôle coach retiré'); } catch (e) { toast(e.message); } },
     'coach-player': (el, v) => { st.sheet = { t: 'player', id: v }; renderOverlays(); },
-    coachweeks: () => { st.coachWeeks = (st.coachWeeks || 6) === 6 ? 60 : 6; render(); },
+    coachrange: (el, v) => { st.coachRange = v; render(); },
     ai: () => { st.sheet = { t: 'ai' }; renderOverlays(); },
     'ai-apply': (el, v) => { const act = JSON.parse(v); const p = P(); if (act.slot && act.to) { p.overrides = Object.assign({}, p.overrides, { [act.slot]: act.to }); save(); ST.sync({ t: 'profile' }); toast('Modification appliquée'); st.sheet = null; render(); } },
   };
