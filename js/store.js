@@ -92,6 +92,7 @@
       ]);
       return { profs: profs || [], logs: logs || [], cis: cis || [] };
     },
+    async setRole(id, role) { return SB.rest(`profiles?id=eq.${id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ role, approved: true }) }); },
     async approve(id, v) { return SB.rest(`profiles?id=eq.${id}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ approved: v }) }); },
     async ai(payload) { await ensureFresh(); return api('/functions/v1/coach-ia', { method: 'POST', body: JSON.stringify(payload) }); },
   };

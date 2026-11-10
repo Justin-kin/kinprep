@@ -286,5 +286,19 @@
     P({ v: 'front', a: ['ff', 76, G], t: 184, ln: [26, -10, 90], lf: [-10, 4, -90], an: [70, 80], af: [60, 76], p: [{ k: 'ball', x: 176, y: 70 }, { k: 'wall', x: 190, top: 30 }] })], 0.35, 0.35, 'loop');
   A.lat_bound_rot = an([latC(56, { an: [-40, -20], af: [-60, -40] }), P({ v: 'front', a: ['fn', 100, 112], t: 180, ln: [20, 10, 90], lf: [-20, -10, -90], an: [60, 80], af: [-60, -80] }), latC2(144, { an: [100, 110], af: [60, 90] })], 0.35, 0.3, 'loop');
 
+  // ---- frappe en 3 phases : armé → balayage montant → ramené vers le bas ----
+  const fArm = (x, o = {}) => P(Object.assign({ a: ['ff', x, G], t: 186, hd: 178, ln: [-26, -30, 80], lf: [18, -8, 90], an: [-92, -96], af: [70, 80], ik: { fn: [x - 40, 138, -1] } }, o));
+  const fHit = (x, o = {}) => P(Object.assign({ a: ['ff', x, G], t: 172, hd: 176, ln: [-30, -60, 70], lf: [10, -4, 90], an: [146, 150], af: [-30, -20], ik: { fn: [x - 40, 138, -1] } }, o));
+  const fDown = (x, o = {}) => P(Object.assign({ a: ['ff', x, G], t: 150, hd: 160, ln: [-36, -70, 70], lf: [24, -16, 90], an: [-8, -2], af: [-40, -30], ik: { fn: [x - 40, 138, -1] } }, o));
+  const bandBack = { k: 'band', from: 'hn', to: [14, 46] }, postBack = { k: 'wall', x: 14, top: 30 };
+  A.frappe_full = an([fArm(120, { p: [postBack, bandBack] }), fHit(120, { p: [postBack, bandBack] }), fDown(120, { p: [postBack, bandBack] })], 0.3, 0.35, 'loop');
+  A.frappe_full_ball = an([fArm(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fHit(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fDown(110, { p: [{ k: 'ball', x: 186, y: 4, r: 14 }] })], 0.3, 0.35, 'loop');
+  A.frappe_step = an([fArm(80, { lf: [6, -4, 90], ik: { fn: [66, 138, -1] } }), fArm(112, { ik: { fn: [66, 138, -1] } }), fHit(112, { ik: { fn: [70, 138, -1] } }), fDown(112, { ik: { fn: [72, 138, -1] } })], 0.3, 0.25, 'loop');
+  A.straight_pulldown = an([stand(100, { ln: [6, -6, 90], lf: [-6, -2, 90], t: 176, an: [160, 164], af: [156, 160], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] }), stand(100, { ln: [10, -10, 90], lf: [-4, -2, 90], t: 168, an: [-14, -10], af: [-10, -8], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] })], 0.3, 0.45);
+  A.rot_throw_diag = an([P({ v: 'front', a: ['ff', 76, G], t: 174, ln: [26, -8, 90], lf: [-14, 4, -90], an: [-20, -10], af: [-34, -20], p: [{ k: 'ball', j: 'hf', o: [-2, 2] }, { k: 'wall', x: 190, top: -10 }] }),
+    P({ v: 'front', a: ['ff', 76, G], t: 186, ln: [20, -6, 90], lf: [-6, 8, -70], an: [140, 150], af: [120, 140], p: [{ k: 'ball', x: 172, y: 8 }, { k: 'wall', x: 190, top: -10 }] })], 0.35, 0.5);
+  A.pushup_plus = an([pu(112, 136, G), pu(115, 136, G)], 0.6, 0.3);
+  A.hop_rot = A.lat_bound_rot;
+
   KP.ANIMS = A;
 })(window.KP);

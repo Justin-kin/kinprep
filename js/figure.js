@@ -134,7 +134,7 @@
     const d = anim.d || 0.9, h = anim.h == null ? 0.35 : anim.h;
     const seq = anim.m === 'loop' ? fr.map((_, i) => [i, (i + 1) % fr.length]) : [...fr.slice(0, -1).map((_, i) => [i, i + 1]), ...fr.slice(1).map((_, i) => [fr.length - 1 - i, fr.length - 2 - i])];
     const seg = d + h, total = seq.length * seg;
-    let t = time % total; const i = Math.floor(t / seg); t -= i * seg;
+    let t = ((time % total) + total) % total; const i = Math.min(seq.length - 1, Math.floor(t / seg)); t -= i * seg;
     const [a, b] = seq[i];
     if (t < h) return fr[a];
     return lerpPose(fr[a], fr[b], ease(Math.min(1, (t - h) / d)));
