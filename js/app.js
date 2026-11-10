@@ -13,7 +13,7 @@
     week: '<rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>', plan: '<path d="M4 6h16M4 12h10M4 18h13"/>',
     chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>', team: '<circle cx="9" cy="8" r="3.2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.2c3 0 5.5 2.4 5.5 5.8"/>',
     user: '<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20.5c0-4 3.4-7 7.5-7s7.5 3 7.5 7"/>', play: '<path d="M8 5.5v13l11-6.5z"/>', timer: '<circle cx="12" cy="13" r="7.5"/><path d="M12 9v4l2.5 2M9.5 3h5"/>',
-    bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>', chat: '<path d="M4 5h16v11H9l-5 4z"/>', swap: '<path d="M7 7h11l-3-3M17 17H6l3 3"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+    bolt: '<path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/>', chat: '<path d="M4 5h16v11H9l-5 4z"/>', swap: '<path d="M7 7h11l-3-3M17 17H6l3 3"/>', info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>', alert: '<path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18v.5"/>',
   };
   const ic = (n, fill) => `<svg viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${I[n]}</svg>`;
 
@@ -265,7 +265,7 @@
       const x = l.data || {};
       let det = '';
       if (x.ex) det = Object.entries(x.ex).map(([eid, e]) => `<div class="small" style="margin-top:4px"><b>${esc((KP.EX_BY_ID[eid] || {}).n || eid)}</b> <span class="muted num">${(e.sets || []).map(z => `${z.r ?? '?'}${z.kg != null ? ' × ' + z.kg + ' kg' : ''}${z.rpe ? ' @' + String(z.rpe).replace('.', ',') : ''}`).join(' · ')}</span></div>`).join('');
-      if (x.kind === 'cardio') det = `<div class="small muted num" style="margin-top:4px">${esc(x.mode || '')}${x.km ? ' · ' + x.km + ' km' : ''}${x.fc ? ' · FC ' + x.fc : ''}${x.dplus ? ' · D+ ' + x.dplus + ' m' : ''}</div>`;
+      if (x.kind === 'cardio') det = `<div class="small muted num" style="margin-top:4px">${esc(x.mode || '')}${x.km ? ' · ' + x.km + ' km' : ''}${x.fc ? ' · FC ' + x.fc : ''}${x.dplus ? ' · D+ ' + x.dplus + ' m' : ''}${x.done === 'part' ? ' · <b>faite en partie</b>' : x.done === 'stop' ? ' · <b>arrêtée</b>' : ''}</div>`;
       if (x.tests) det = `<div class="small muted num" style="margin-top:4px">${Object.entries(x.tests).map(([k, v]) => { const tt = G.TESTS.find(z => z.id === k) || {}; return `${esc(tt.label || k)} : ${esc(String(v))} ${esc(tt.unit || '')}`; }).join(' · ')}</div>`;
       return `<details class="card" style="padding:12px 14px"><summary style="cursor:pointer;list-style:none"><div class="row"><div class="grow"><b>${esc(l.title || l.session_key)}</b><div class="small muted num">${WN(l.week)} · ${l.done_at ? new Date(l.done_at).toLocaleDateString('fr-BE') : ''} · ${hm(x.dur)} · RPE ${x.rpe || '?'}</div></div></div></summary>
         ${det}${x.note ? `<div class="note small" style="margin-top:8px">${esc(x.note)}</div>` : ''}</details>`;
@@ -436,7 +436,7 @@
           ${b.items.map((it, i) => exRow(it, b.grp + (b.items.length > 1 ? i + 1 : ''))).join('')}</section>`).join('')}
         <details class="card flat"><summary style="cursor:pointer;font-weight:600">RPE cible et RPE réel</summary><p class="small" style="margin:10px 0 0">Le <b>RPE cible</b> t'aide à choisir ta charge. Pendant la séance guidée, tu notes ton <b>RPE réel</b> après chaque série : l'appli s'en sert pour te proposer la charge de la séance suivante.</p>${rpeScale()}</details>`;
     } else if (s.kind === 'cardio') {
-      body = `${meta}${s.blocks.map(b => cardioBlock(b)).join('')}
+      body = `${meta}${P().vmaHint ? '<div class="note acc small"><b>Tes allures d\'endurance sont plus rapides que prévu pour un effort faible.</b> Ta VMA a sans doute progressé : refais le demi-Cooper (onglet Plan, séance Tests) pour ajuster tes cibles.</div>' : ''}${(P().intAdj || 0) && s.blocks.some(b => b.type === 'int') ? `<div class="note small">Distances cibles ajustées à tes derniers relevés (${P().intAdj > 0 ? '+' : ''}${Math.round(P().intAdj * 100)} % de VMA).</div>` : ''}${s.blocks.map(b => cardioBlock(b)).join('')}
         <div class="note small">Pas envie de courir ? Tu peux remplacer cette séance par une autre activité (vélo, natation, squash…) d'une durée et d'une intensité proches, puis l'enregistrer comme telle.</div>`;
     } else if (s.kind === 'test') {
       body = `${meta}${s.tests.map(t => `<div class="ex" style="grid-template-columns:76px 1fr">${figThumb(t.anim)}<div><div class="nm">${esc(t.label)}</div><div class="hint">${esc(t.detail)}</div><input type="number" inputmode="decimal" id="t_${t.id}" placeholder="${t.unit}" style="margin-top:6px" value="${lg && lg.tests ? esc(lg.tests[t.id] || '') : ''}"></div></div>`).join('')}`;
@@ -477,7 +477,7 @@
         <h2 style="font-size:26px;margin-top:12px">${esc(x.n)}</h2><p class="small muted" style="margin:4px 0 0">${esc(x.mus)}</p>
         ${videoBlock(x, sh)}
         <div class="stack" style="margin-top:12px"><div><div class="eyebrow">Points clés</div><ul class="cues" style="margin-top:6px">${x.cues.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>
-        ${x.err && x.err.length ? `<div><div class="eyebrow">Erreurs fréquentes</div><ul class="cues" style="margin-top:6px">${x.err.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+        ${x.att ? `<div><div class="eyebrow">Points d'attention</div><ul class="cues att-l" style="margin-top:6px">${x.att.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : x.err && x.err.length ? `<div><div class="eyebrow">Erreurs fréquentes</div><ul class="cues" style="margin-top:6px">${x.err.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
         <div class="small"><span class="muted">Matériel : </span>${x.eq.length ? x.eq.map(r => r.split('|').map(id => (KP.EQUIP[id] || {}).label).join(' ou ')).join(' + ') : 'aucun'}</div>
         ${x.note ? `<div class="note acc small">${esc(x.note)}</div>` : ''}
         ${sh.slot ? `<button class="btn ghost block" data-a="report" data-slot="${esc(sh.slot)}">Signaler un problème</button>` : ''}
@@ -487,8 +487,8 @@
       const it = findItem(sh.slot);
       if (!it) return '<p>Exercice introuvable.</p>';
       if (!sh.reason) return `<h2 style="font-size:24px">${esc(it.ex.n)}</h2><p class="muted" style="margin:6px 0 12px">Qu'est-ce qui ne va pas ?</p>
-        <div class="stack" style="gap:8px">${[['materiel', 'Je n\'ai pas le matériel'], ['douleur', 'J\'ai mal en le faisant'], ['trop_dur', 'C\'est trop difficile'], ['trop_facile', 'C\'est trop facile'], ['autre', 'Autre chose']].map(([k, l]) => `<button class="btn block ghost" style="justify-content:flex-start;text-transform:none;font:600 16px var(--body)" data-a="reason" data-v="${k}">${l}</button>`).join('')}</div>`;
-      if (sh.reason === 'douleur' && !sh.zone) return `<h2 style="font-size:24px">Où as-tu mal ?</h2><div class="chips" style="margin-top:12px">${KP.ZONES.map(z => `<button class="chip ${it.ex.zones.includes(z.id) ? 'on' : ''}" data-a="zone" data-v="${z.id}">${z.label}</button>`).join('')}</div>
+        <div class="stack" style="gap:8px">${[['materiel', 'Je n\'ai pas le matériel'], ['douleur', 'J\'ai mal en le faisant'], ['trop_dur', 'C\'est trop difficile'], ['trop_facile', 'C\'est trop facile'], ...(KP.CONFIG.ai ? [['autre', 'Autre chose']] : [])].map(([k, l]) => `<button class="btn block ghost" style="justify-content:flex-start;text-transform:none;font:600 16px var(--body)" data-a="reason" data-v="${k}">${l}</button>`).join('')}</div>`;
+      if (sh.reason === 'douleur' && !sh.zone) return `${it.ex.att ? `<div class="note acc small" style="margin-bottom:14px"><b>Vérifie d'abord ta technique</b><ul class="cues" style="margin-top:6px">${it.ex.att.map(c => `<li>${esc(c)}</li>`).join('')}</ul>Une douleur vient souvent d'une exécution à corriger. Si elle reste malgré tout, indique la zone.</div>` : ''}<h2 style="font-size:24px">Où as-tu mal ?</h2><div class="chips" style="margin-top:12px">${KP.ZONES.map(z => `<button class="chip ${it.ex.zones.includes(z.id) ? 'on' : ''}" data-a="zone" data-v="${z.id}">${z.label}</button>`).join('')}</div>
         <div class="note warn small" style="margin-top:14px">Arrête l'exercice si la douleur est vive. Si elle persiste plus d'une semaine ou gêne au quotidien, consulte un kiné ou un médecin.</div>`;
       if (sh.reason === 'autre') return `<h2 style="font-size:24px">Explique le problème</h2><textarea id="rep_txt" style="margin-top:10px" placeholder="Ex. : le banc de ma salle est toujours occupé le mardi"></textarea>
         <button class="btn primary block" style="margin-top:10px" data-a="sendfb">Envoyer</button>${KP.CONFIG.ai && SB.user() ? '<button class="btn ghost block" style="margin-top:8px" data-a="ai">Demander à l\'assistant</button>' : ''}`;
@@ -521,16 +521,15 @@
         <label class="f">Activité<select id="cl_mode">${[['course', 'Course à pied'], ['velo', 'Vélo'], ['rameur', 'Rameur'], ['natation', 'Natation'], ['squash', 'Squash'], ['autre', 'Autre sport']].map(([v, l]) => `<option value="${v}" ${(lg.mode || 'course') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
         <div class="row" style="gap:10px"><label class="f grow">Durée (min)<input type="number" id="cl_dur" inputmode="numeric" required value="${lg.dur || s.min}"></label><label class="f grow">Distance (km)<input type="number" id="cl_km" step="0.01" inputmode="decimal" value="${lg.km || ''}"></label></div>
         <div class="row" style="gap:10px"><label class="f grow">FC moyenne<input type="number" id="cl_fc" inputmode="numeric" value="${lg.fc || ''}"></label><label class="f grow">Dénivelé + (m)<input type="number" id="cl_dplus" inputmode="numeric" value="${lg.dplus || ''}"></label></div>
-        <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE)</span>${rpePicker('cl_rpe', lg.rpe || 7, true)}</div>
-        <label class="f">Ressenti<textarea id="cl_note" placeholder="Ex. : dur mais je pouvais faire un peu plus">${esc(lg.note || '')}</textarea></label>
+        <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Séance faite</span><div class="seg">${[['full', 'En entier'], ['part', 'En partie'], ['stop', 'Arrêtée']].map(([v, l]) => `<button type="button" class="${(lg.done || 'full') === v ? 'on' : ''}" data-a="cl-done" data-v="${v}">${l}</button>`).join('')}</div><input type="hidden" id="cl_done" value="${lg.done || 'full'}"></div>
+        <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE), à choisir</span>${rpePicker('cl_rpe', lg.rpe || '', true)}${rpeHelp()}</div>
         <button class="btn primary block" type="submit">Enregistrer</button>${lg.id ? `<button class="btn ghost block" type="button" data-a="dellog" data-v="${lg.id}">Supprimer ce relevé</button>` : ''}</form>`;
     }
     if (sh.t === 'quicklog') {
       const s = curSess(), lg = logOf(st.page.n, s.key) || {};
       return `<h2 style="font-size:26px">Séance réalisée</h2><form class="stack" style="margin-top:12px" data-f="quicklog">
         <label class="f">Durée (min)<input type="number" id="ql_dur" inputmode="numeric" value="${lg.dur || s.min}"></label>
-        <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE)</span>${rpePicker('ql_rpe', lg.rpe || 7, true)}</div>
-        <label class="f">Note<textarea id="ql_note">${esc(lg.note || '')}</textarea></label>
+        <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE)</span>${rpePicker('ql_rpe', lg.rpe || '', true)}${rpeHelp()}</div>
         <button class="btn primary block" type="submit">Enregistrer</button>${lg.id ? `<button class="btn ghost block" type="button" data-a="dellog" data-v="${lg.id}">Supprimer ce relevé</button>` : ''}</form>`;
     }
     if (sh.t === 'export') return `<h2 style="font-size:26px">Exporter mes données</h2><p class="small muted">Copie ce texte et garde-le en lieu sûr. Tu pourras le réimporter sur un autre appareil.</p><textarea id="exp" readonly style="min-height:200px;font-size:12px">${esc(JSON.stringify(D()))}</textarea>
@@ -557,13 +556,15 @@
       <div class="small" id="vid_err" style="color:var(--crit)"></div><div class="row"><button class="btn sm primary" type="submit">Enregistrer</button><button class="btn sm ghost" type="button" data-a="vid-cancel">Annuler</button>${mine ? '<button class="link" type="button" data-a="vid-clear">Revenir au lien par défaut</button>' : ''}</div></form>`;
     return `<div class="row wrap" style="margin-top:12px;gap:8px"><a class="btn sm dark" href="${esc(v.url)}" target="_blank" rel="noopener noreferrer">${ic('play', 1)} ${v.search ? 'Chercher une vidéo' : 'Voir la vidéo'}</a><span class="small muted grow">${esc(v.src)}</span><button class="link small" data-a="vid-edit">${mine ? 'Changer' : 'Ajouter mon lien'}</button></div>`;
   }
+  const SESS_RPE = [[1, 'Très facile, marche'], [3, 'Facile, je peux parler sans effort'], [5, 'Je parle par phrases courtes'], [7, 'Dur, je parle par mots'], [8, 'Très dur'], [9, 'Presque au maximum'], [10, 'Maximum, impossible de faire plus']];
+  const rpeHelp = () => `<div class="small muted" style="margin-top:6px">${SESS_RPE.map(([n, t]) => `<b class="num" style="color:var(--ink)">${n}</b> ${t}`).join(' · ')}</div>`;
   function rpePicker(id, v, full) { const vals = full ? [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] : [6, 7, 7.5, 8, 8.5, 9, 9.5, 10]; return `<div class="rpe" style="grid-template-columns:repeat(${full ? 5 : 4},1fr)" data-rpe="${id}">${vals.map(x => `<button type="button" class="${+v === x ? 'on' : ''}" data-a="rpe" data-id="${id}" data-v="${x}">${String(x).replace('.', ',')}</button>`).join('')}</div><input type="hidden" id="${id}" value="${v}">`; }
   function findItem(slotKey) { const s = curSess(); if (!s || !s.blocks) return null; for (const b of s.blocks) for (const it of b.items) if (it.slotKey === slotKey) return it; return null; }
 
   // ---------- lecteur de séance guidé ----------
   function buildSteps(s) {
     const steps = [];
-    for (let r = 0; r < 2; r++) s.warmup.items.forEach((x, i) => steps.push({ t: 'wu', ex: x, sec: 40, rest: 20, label: `Échauffement · tour ${r + 1}/2` }));
+    const wr = s.warmup.rounds || 2; for (let r = 0; r < wr; r++) s.warmup.items.forEach((x, i) => steps.push({ t: 'wu', ex: x, sec: 40, rest: 20, label: `Échauffement · tour ${r + 1}/${wr}` }));
     s.blocks.forEach(b => {
       const rounds = Math.max(...b.items.map(i => i.p.s));
       for (let r = 1; r <= rounds; r++) b.items.forEach((it, j) => {
@@ -584,8 +585,8 @@
     const pl = st.player, s = pl.sess;
     if (pl.mode === 'end') return `<div class="player-in"><div class="row"><h2 class="grow" style="font-size:28px">Séance terminée</h2></div>
       <div class="card"><div class="kv"><dt>Durée</dt><dd class="num">${Math.round((Date.now() - pl.t0) / 60000)} min</dd><dt>Séries notées</dt><dd class="num">${Object.values(pl.log).reduce((a, x) => a + x.sets.length, 0)}</dd></div></div>
-      <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté globale de la séance (RPE 1 à 10)</span>${rpePicker('pl_rpe', pl.rpe || 7, true)}</div>
-      <label class="f">Note pour toi ou ton coach<textarea id="pl_note" placeholder="Ex. : genou droit un peu sensible sur les fentes"></textarea></label>
+      <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté globale de la séance (RPE 1 à 10)</span>${rpePicker('pl_rpe', pl.rpe || '', true)}${rpeHelp()}</div>
+
       <div class="grow"></div><button class="btn primary block" data-a="pl-save">Enregistrer la séance</button><button class="btn ghost block" data-a="pl-quit">Quitter sans enregistrer</button></div>`;
     const st0 = pl.steps[pl.i], tot = pl.steps.length;
     const head = `<div class="row"><button class="icon-btn" data-a="pl-close" aria-label="Quitter">${ic('close')}</button><div class="grow"><div class="prog"><i style="width:${Math.round((pl.i / tot) * 100)}%"></i></div></div><span class="small muted num">${pl.i + 1}/${tot}</span></div>`;
@@ -610,6 +611,7 @@
     return `<div class="player-in">${head}
       <div class="row"><div class="grow"><div class="eyebrow">${it.slot ? `${st0.grp} · ` : ''}Série ${st0.set} sur ${st0.of}</div><h2 style="font-size:26px">${esc(x.n)}</h2></div><button class="more" data-a="pl-info" data-id="${x.id}" aria-label="Consignes">${ic('info')}</button></div>
       <div class="stage"><div data-anim="${x.id}" style="width:100%"></div></div>
+      ${x.att ? `<div class="att">${ic('alert')}<ul>${x.att.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
       ${isTime ? `<div style="display:grid;place-items:center">${ring(pl.remain || p.t, p.t, pl.timer ? 'work' : '')}</div><div class="small muted" style="text-align:center">${p.t} s${per}${it.note ? ' · ' + esc(it.note) : ''}</div>
         ${pl.timer ? '' : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Lancer ${p.t} s</button>`}<button class="btn block ${pl.timer ? 'primary' : 'ghost'}" data-a="pl-done">Série terminée</button>`
       : `<div class="row" style="align-items:flex-end"><div class="grow"><div class="big num">${p.r}<small> rép.${per}</small></div>${x.load !== 'plyo' ? `<div class="small muted">RPE cible ${String(p.rpe).replace('.', ',')}${it.note ? ' · ' + esc(it.note) : ''}</div>` : `<div class="small muted">Qualité maximale${it.note ? ' · ' + esc(it.note) : ''}</div>`}</div></div>
@@ -762,6 +764,29 @@
   async function wake(on) { try { if (on && navigator.wakeLock) wl = await navigator.wakeLock.request('screen'); else if (wl) { wl.release(); wl = null; } } catch (e) { /* refusé */ } }
 
   // ---------- enregistrements ----------
+  // adaptation du cardio à partir des relevés (règles simples, sans assistant)
+  function cardioAdapt() {
+    const p = P(), L = D().logs.filter(l => l.kind === 'cardio').sort((a, b) => a.week - b.week || new Date(a.date) - new Date(b.date));
+    const since = p.vmaDate || 0; let adj = 0, easy = 0, msg = '';
+    L.filter(l => l.int && new Date(l.date) > since).forEach(l => {
+      const ok = (l.done || 'full') === 'full';
+      if (ok && l.rpe && l.rpe <= 6) { easy++; if (easy >= 2) { adj = Math.min(0.10, adj + 0.05); easy = 0; } }
+      else if (!ok || l.rpe >= 10) { adj = Math.max(0, adj - 0.05); easy = 0; }
+      else easy = 0;
+    });
+    const lastI = L.filter(l => l.int).pop();
+    if (adj > (p.intAdj || 0)) msg = 'Intermittent facile : tes distances cibles augmentent';
+    else if (lastI && ((lastI.done || 'full') !== 'full' || lastI.rpe >= 10)) msg = adj < (p.intAdj || 0) ? 'Séance difficile : tes distances cibles reviennent un cran en arrière' : 'Séance difficile : tes distances cibles restent les mêmes';
+    p.intAdj = adj;
+    // allures d'endurance plus rapides que prévu pour un effort faible → proposer un nouveau test
+    const vma = +p.vma; const fast = L.filter(l => l.ef && l.km && l.dur && l.rpe && l.rpe <= 4 && (l.mode || 'course') === 'course' && new Date(l.date) > since && vma && l.km / (l.dur / 60) > vma * 0.8);
+    p.vmaHint = fast.length >= 2;
+    // plusieurs séances très dures dans la semaine → la semaine suivante compte comme plus chargée
+    const strain = {}; D().logs.forEach(l => { if (l.rpe >= 9) strain[l.week + 1] = (strain[l.week + 1] || 0) + 1; });
+    p.strain = Object.fromEntries(Object.entries(strain).filter(([, n]) => n >= 2).map(([w]) => [w, 1]));
+    save(); ST.sync({ t: 'profile' });
+    return msg;
+  }
   function upsertLog(l) {
     const L = D().logs, i = L.findIndex(x => x.week === l.week && x.key === l.key);
     if (i >= 0) { l.id = L[i].id; L[i] = Object.assign({}, L[i], l); } else { l.id = l.id || ST.uid(); L.push(l); }
@@ -841,19 +866,21 @@
     'pl-info': el => { st.sheet = { t: 'ex', id: el.dataset.id }; renderOverlays(); },
     'pl-save': () => {
       const pl = st.player, s = pl.sess;
-      upsertLog({ week: st.page.n, key: s.key, kind: 'renfo', title: s.title, date: new Date().toISOString(), dur: Math.max(1, Math.round((Date.now() - pl.t0) / 60000)), rpe: +document.getElementById('pl_rpe').value, note: document.getElementById('pl_note').value, ex: pl.log, lieu: s.lieu });
+      if (!document.getElementById('pl_rpe').value) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
+      upsertLog({ week: st.page.n, key: s.key, kind: 'renfo', title: s.title, date: new Date().toISOString(), dur: Math.max(1, Math.round((Date.now() - pl.t0) / 60000)), rpe: +document.getElementById('pl_rpe').value, ex: pl.log, lieu: s.lieu }); cardioAdapt();
       st.player = null; st.page = null; wake(false); toast('Séance enregistrée'); render();
     },
     'pl-quit': () => { st.player = null; wake(false); render(); },
     step: (el) => { const i = document.getElementById(el.dataset.id); const v = (+i.value || 0) + +el.dataset.v; i.value = Math.max(0, Math.round(v * 10) / 10); },
     rpe: el => { const id = el.dataset.id; document.getElementById(id).value = el.dataset.v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); if (id === 'pl_rpe' && st.player) st.player.rpe = +el.dataset.v; },
+    'cl-done': (el, v) => { document.getElementById('cl_done').value = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); },
     quicklog: () => { st.sheet = { t: 'quicklog' }; renderOverlays(); },
     cardiolog: () => { st.sheet = { t: 'cardiolog' }; renderOverlays(); },
-    dellog: (el, v) => { D().logs = D().logs.filter(l => l.id !== v); save(); ST.sync({ t: 'dellog', id: v }); st.sheet = null; st.page = null; toast('Relevé supprimé'); render(); },
+    dellog: (el, v) => { D().logs = D().logs.filter(l => l.id !== v); cardioAdapt(); save(); ST.sync({ t: 'dellog', id: v }); st.sheet = null; st.page = null; toast('Relevé supprimé'); render(); },
     savetests: () => {
       const s = curSess(), t = {}; G.TESTS.forEach(x => { const val = document.getElementById('t_' + x.id).value; if (val) t[x.id] = +String(val).replace(',', '.'); });
       if (!Object.keys(t).length) { toast('Saisis au moins un résultat'); return; }
-      if (t.vma) { P().vma = Math.round(t.vma / 10) / 10; ST.sync({ t: 'profile' }); }
+      if (t.vma) { P().vma = Math.round(t.vma / 10) / 10; P().vmaDate = Date.now(); P().intAdj = 0; P().vmaHint = false; ST.sync({ t: 'profile' }); }
       upsertLog({ week: st.page.n, key: s.key, kind: 'test', title: s.title, date: new Date().toISOString(), dur: 40, rpe: 8, tests: t });
       st.page = null; toast(t.vma ? `Tests enregistrés · VMA ${P().vma} km/h` : 'Tests enregistrés'); render();
     },
@@ -920,13 +947,15 @@
     }
     if (kind === 'cardiolog') {
       const s = curSess(), g = id => document.getElementById(id).value;
-      upsertLog({ week: st.page.n, key: s.key, kind: 'cardio', title: s.title, date: new Date().toISOString(), mode: g('cl_mode'), dur: +g('cl_dur'), km: g('cl_km') ? +String(g('cl_km')).replace(',', '.') : null, fc: g('cl_fc') ? +g('cl_fc') : null, dplus: g('cl_dplus') ? +g('cl_dplus') : null, rpe: +g('cl_rpe'), note: g('cl_note') });
-      st.sheet = null; st.page = null; toast('Séance enregistrée'); render(); return;
+      if (!g('cl_rpe')) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
+      upsertLog({ int: s.blocks.some(b => b.type === 'int'), ef: s.blocks.every(b => ['ef', 'wu', 'cd', 'deb'].includes(b.type)), done: g('cl_done'), week: st.page.n, key: s.key, kind: 'cardio', title: s.title, date: new Date().toISOString(), mode: g('cl_mode'), dur: +g('cl_dur'), km: g('cl_km') ? +String(g('cl_km')).replace(',', '.') : null, fc: g('cl_fc') ? +g('cl_fc') : null, dplus: g('cl_dplus') ? +g('cl_dplus') : null, rpe: +g('cl_rpe') });
+      const ad = cardioAdapt(); st.sheet = null; st.page = null; toast(ad || 'Séance enregistrée'); render(); return;
     }
     if (kind === 'quicklog') {
       const s = curSess(), g = id => document.getElementById(id).value;
-      upsertLog({ week: st.page.n, key: s.key, kind: s.kind, title: s.title, date: new Date().toISOString(), dur: +g('ql_dur'), rpe: +g('ql_rpe'), note: g('ql_note') });
-      st.sheet = null; st.page = null; toast('Séance enregistrée'); render(); return;
+      if (!g('ql_rpe')) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
+      upsertLog({ week: st.page.n, key: s.key, kind: s.kind, title: s.title, date: new Date().toISOString(), dur: +g('ql_dur'), rpe: +g('ql_rpe') });
+      cardioAdapt(); st.sheet = null; st.page = null; toast('Séance enregistrée'); render(); return;
     }
     if (kind === 'auth') {
       const err = document.getElementById('au_err'); err.textContent = '';

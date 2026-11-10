@@ -297,6 +297,11 @@
   A.straight_pulldown = an([stand(100, { ln: [6, -6, 90], lf: [-6, -2, 90], t: 176, an: [160, 164], af: [156, 160], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] }), stand(100, { ln: [10, -10, 90], lf: [-4, -2, 90], t: 168, an: [-14, -10], af: [-10, -8], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] })], 0.3, 0.45);
   A.rot_throw_diag = an([P({ v: 'front', a: ['ff', 76, G], t: 174, ln: [26, -8, 90], lf: [-14, 4, -90], an: [-20, -10], af: [-34, -20], p: [{ k: 'ball', j: 'hf', o: [-2, 2] }, { k: 'wall', x: 190, top: -10 }] }),
     P({ v: 'front', a: ['ff', 76, G], t: 186, ln: [20, -6, 90], lf: [-6, 8, -70], an: [140, 150], af: [120, 140], p: [{ k: 'ball', x: 172, y: 8 }, { k: 'wall', x: 190, top: -10 }] })], 0.35, 0.5);
+  // roue abdominale : mains sur les poignées (axe de la roue à 7 au-dessus du sol)
+  const wk = (th, t, wx) => P({ a: ['kn', 70, G - 3], t, hd: t + 6, ln: [th, -90, -100], lf: [th, -90, -100], an: [0, 0], af: [0, 0], ik: { hn: [wx, G - 7, 1], hf: [wx - 1, G - 7, 1] }, p: [{ k: 'wheel' }] });
+  A.ab_wheel = an([wk(40, 130, 84), wk(-58, 97, 178)], 1.6, 0.5);
+  const ws = (lg, t, wx) => P({ a: ['fn', 40, G], t, hd: t + 6, ln: [lg, lg, 90], lf: [lg, lg, 90], an: [0, 0], af: [0, 0], ik: { hn: [wx, G - 7, 1], hf: [wx - 1, G - 7, 1] }, p: [{ k: 'wheel' }] });
+  A.ab_wheel_stand = an([ws(-30, 60, 112), ws(-68, 80, 194)], 1.8, 0.5);
   A.pushup_plus = an([pu(112, 136, G), pu(115, 136, G)], 0.6, 0.3);
   A.hop_rot = A.lat_bound_rot;
 

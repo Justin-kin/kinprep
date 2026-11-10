@@ -12,6 +12,7 @@
       { id: 'mini_band', label: 'Mini-bandes (élastiques en boucle)' },
       { id: 'corde', label: 'Corde à sauter' },
       { id: 'slider', label: 'Disques de glisse (ou serviette sur sol lisse)' },
+      { id: 'roue', label: 'Roue abdominale' },
       { id: 'plateau', label: 'Coussin ou plateau d\'équilibre' },
       { id: 'swiss', label: 'Swiss ball' },
       { id: 'medball', label: 'Médecine-ball / ballon lesté' },
@@ -45,7 +46,7 @@
   KP.EQUIP = {};
   KP.EQUIP_GROUPS.forEach(g => g.items.forEach(i => (KP.EQUIP[i.id] = i)));
   KP.ALWAYS = KP.EQUIP_GROUPS[0].items.map(i => i.id);
-  KP.GYM_SET = ['elastique', 'mini_band', 'corde', 'swiss', 'medball', 'plateau', 'trx', 'halteres', 'kettlebell', 'barre', 'landmine', 'banc', 'rack', 'traction', 'box', 'poulie', 'machines', 'velo', 'rameur', 'plots', 'ancrage', 'slider'];
+  KP.GYM_SET = ['elastique', 'mini_band', 'corde', 'swiss', 'medball', 'plateau', 'trx', 'halteres', 'kettlebell', 'barre', 'landmine', 'banc', 'rack', 'traction', 'box', 'poulie', 'machines', 'velo', 'rameur', 'plots', 'ancrage', 'slider', 'roue'];
 
   KP.ZONES = [
     { id: 'epaule', label: 'Épaule' }, { id: 'coude', label: 'Coude' }, { id: 'poignet', label: 'Poignet / main' },
