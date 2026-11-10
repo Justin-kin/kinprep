@@ -249,6 +249,10 @@ textarea { min-height: 80px; resize: vertical; }
 .fab { z-index: 47; }
 .page ~ .fab { bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
 .big small { font-size: 0.45em; }
+.savebar { position: sticky; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); z-index: 20; display: flex; flex-direction: column; gap: 6px; padding: 10px 0 4px; background: linear-gradient(to top, var(--bg) 75%, transparent); }
+.savebar .dirty-msg { display: none; color: var(--accent); font-weight: 700; text-align: center; }
+.pfdirty .savebar .dirty-msg { display: block; }
+.pfdirty .fab { display: none; }
 .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 16px; border-radius: 12px; z-index: 90; font-weight: 600; max-width: 90%; animation: up .2s ease; }
 .note { border-radius: 12px; padding: 12px 14px; font-size: 14px; background: var(--surface-2); }
 .note.warn { background: var(--warn-soft); color: var(--ink); }
@@ -271,15 +275,15 @@ ul.cues { margin: 0; padding-left: 18px; display: flex; flex-direction: column; 
 </head>
 <body>
 <div id="app"></div>
-<script src="js/config.js?v=1"></script>
-<script src="js/equipment.js?v=1"></script>
-<script src="js/figure.js?v=1"></script>
-<script src="js/anims.js?v=1"></script>
-<script src="js/exercises.js?v=1"></script>
-<script src="js/calendar.js?v=1"></script>
-<script src="js/generator.js?v=1"></script>
-<script src="js/store.js?v=1"></script>
-<script src="js/app.js?v=1"></script>
-<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function(){});</script>
+<script src="js/config.js?v=202611100945"></script>
+<script src="js/equipment.js?v=202611100945"></script>
+<script src="js/figure.js?v=202611100945"></script>
+<script src="js/anims.js?v=202611100945"></script>
+<script src="js/exercises.js?v=202611100945"></script>
+<script src="js/calendar.js?v=202611100945"></script>
+<script src="js/generator.js?v=202611100945"></script>
+<script src="js/store.js?v=202611100945"></script>
+<script src="js/app.js?v=202611100945"></script>
+<script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ r.update(); }).catch(function(){});</script>
 </body>
 </html>
