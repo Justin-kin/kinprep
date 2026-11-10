@@ -70,6 +70,10 @@ h1, h2, h3 { font-family: var(--display); font-weight: 700; letter-spacing: .01e
 .brand b { color: var(--accent); }
 .flag { display: inline-flex; width: 18px; height: 13px; border-radius: 2px; overflow: hidden; margin-right: 7px; vertical-align: 1px; box-shadow: 0 0 0 1px var(--line); }
 .flag i { flex: 1; } .flag i:nth-child(1) { background: var(--be-black); } .flag i:nth-child(2) { background: var(--be-yellow); } .flag i:nth-child(3) { background: var(--be-red); }
+.brand { display: inline-flex; align-items: center; }
+.brand .ring { width: 28px; height: 28px; margin-right: 7px; padding: 2px; background: #fff; border-radius: 50%; }
+.wclogo { background: #fff; border-radius: var(--r); padding: 14px; display: grid; place-items: center; }
+.wclogo img { width: min(240px, 70%); height: auto; display: block; }
 .wknav { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .icon-btn { width: 38px; height: 38px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
 .icon-btn svg { width: 18px; height: 18px; }
@@ -275,15 +279,15 @@ ul.cues { margin: 0; padding-left: 18px; display: flex; flex-direction: column; 
 </head>
 <body>
 <div id="app"></div>
-<script src="js/config.js?v=202611100945"></script>
-<script src="js/equipment.js?v=202611100945"></script>
-<script src="js/figure.js?v=202611100945"></script>
-<script src="js/anims.js?v=202611100945"></script>
-<script src="js/exercises.js?v=202611100945"></script>
-<script src="js/calendar.js?v=202611100945"></script>
-<script src="js/generator.js?v=202611100945"></script>
-<script src="js/store.js?v=202611100945"></script>
-<script src="js/app.js?v=202611100945"></script>
+<script src="js/config.js?v=202611101122"></script>
+<script src="js/equipment.js?v=202611101122"></script>
+<script src="js/figure.js?v=202611101122"></script>
+<script src="js/anims.js?v=202611101122"></script>
+<script src="js/exercises.js?v=202611101122"></script>
+<script src="js/calendar.js?v=202611101122"></script>
+<script src="js/generator.js?v=202611101122"></script>
+<script src="js/store.js?v=202611101122"></script>
+<script src="js/app.js?v=202611101122"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ r.update(); }).catch(function(){});</script>
 </body>
 </html>

@@ -1,5 +1,5 @@
-const CACHE = 'kinprep-202611100945';
-const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "js/config.js?v=202611100945", "js/equipment.js?v=202611100945", "js/figure.js?v=202611100945", "js/anims.js?v=202611100945", "js/exercises.js?v=202611100945", "js/calendar.js?v=202611100945", "js/generator.js?v=202611100945", "js/store.js?v=202611100945", "js/app.js?v=202611100945"];
+const CACHE = 'kinprep-202611101122';
+const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/ring.png", "icons/logo-wc.png", "js/config.js?v=202611101122", "js/equipment.js?v=202611101122", "js/figure.js?v=202611101122", "js/anims.js?v=202611101122", "js/exercises.js?v=202611101122", "js/calendar.js?v=202611101122", "js/generator.js?v=202611101122", "js/store.js?v=202611101122", "js/app.js?v=202611101122"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
