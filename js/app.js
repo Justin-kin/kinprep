@@ -301,7 +301,7 @@
       <div class="card stack"><div class="eyebrow">Sauvegarde</div><p class="small muted" style="margin:0">${SB.enabled() && SB.user() ? 'Tes données sont synchronisées avec l\'espace équipe.' : 'Tes données sont enregistrées sur cet appareil. Exporte-les régulièrement.'}</p>
         <div class="row wrap"><button class="btn sm" data-a="export">Exporter</button><button class="btn sm" data-a="import">Importer</button><button class="btn sm ghost" data-a="theme">Thème : ${({ light: 'clair', dark: 'sombre' })[document.documentElement.dataset.theme] || 'système'}</button></div>
         ${st.confirmReset ? `<div class="note crit">Supprimer toutes tes données de cet appareil ? <div class="row" style="margin-top:8px"><button class="btn sm dark" data-a="reset-yes">Oui, tout supprimer</button><button class="btn sm ghost" data-a="reset-no">Annuler</button></div></div>` : `<button class="link" data-a="reset" style="align-self:flex-start;color:var(--crit)">Supprimer mes données</button>`}</div>
-      <p class="small muted" style="text-align:center">KinPrep · basé sur la préparation de Nicolas (2023) et la littérature en préparation physique.</p>
+     
     </div>`;
   }
 
@@ -413,7 +413,7 @@
     if (navSkip > 0) { navSkip--; return; }
     navLayers = Math.max(0, navLayers - 1);
     if (st.sheet) { closeSheet(); return; }
-    if (st.player) { try { history.pushState({ kp: navLayers + 1 }, ''); } catch (e) { /* */ } navLayers++; toast('Pour quitter la séance, touche la croix en haut à gauche'); return; }
+    if (st.player) { try { history.pushState({ kp: navLayers + 1 }, ''); } catch (e) { /* */ } navLayers++; if (!['quit', 'end'].includes(st.player.mode)) ACTIONS['pl-close'](); return; }
     if (st.page) { st.page = null; render(); return; }
     if (st.tab !== 'semaine') { if (st.pfDirty) saveProfileForm(true); st.tab = 'semaine'; render(); return; }
   });
@@ -443,7 +443,9 @@
     } else {
       body = `${meta}<div class="stack">${s.items.map(x => `<button class="ex" data-a="open-ex" data-id="${x.id}" style="grid-template-columns:76px 1fr">${figThumb(x.id)}<div><div class="nm">${esc(x.n)}</div><div class="rx">2 × 45 s</div></div></button>`).join('')}</div>`;
     }
-    const cta = s.kind === 'renfo' ? `<button class="btn primary grow" data-a="start">${ic('play', 1)} ${lg ? 'Refaire la séance' : 'Démarrer la séance'}</button><button class="btn" data-a="quicklog">${lg ? 'Modifier' : 'Déjà faite'}</button>`
+    const dr = s.kind === 'renfo' ? draftOf(pg.n, s.key) : null;
+    const cta = dr ? `<button class="btn primary grow" data-a="resume">${ic('play', 1)} Reprendre (${Math.round(100 * dr.i / dr.nsteps)} %)</button><button class="btn" data-a="start">Recommencer</button>`
+      : s.kind === 'renfo' ? `<button class="btn primary grow" data-a="start">${ic('play', 1)} ${lg ? 'Refaire la séance' : 'Démarrer la séance'}</button><button class="btn" data-a="quicklog">${lg ? 'Modifier' : 'Déjà faite'}</button>`
       : s.kind === 'cardio' ? `<button class="btn primary grow" data-a="cardiolog">${lg ? 'Modifier mon relevé' : 'Enregistrer la séance'}</button>`
       : s.kind === 'test' ? `<button class="btn primary grow" data-a="savetests">Enregistrer les tests</button>${lg ? `<button class="btn" data-a="dellog" data-v="${lg.id}">Supprimer</button>` : ''}` : `<button class="btn primary grow" data-a="quicklog">C'est fait</button>`;
     return top + `<div class="stack">${body}</div><div class="cta"><div>${cta}${KP.CONFIG.ai && SB.user() ? `<button class="btn ghost" data-a="ai" aria-label="Demander à l'assistant">${ic('chat')}</button>` : ''}</div></div>`;
@@ -452,7 +454,7 @@
     const sug = G.suggestLoad(it.ex, it.p, P(), D().logs);
     return `<div class="ex"><button style="all:unset;cursor:pointer;display:contents" data-a="open-ex" data-id="${it.ex.id}" data-slot="${esc(it.slotKey)}">${figThumb(it.ex.id)}
       <div style="min-width:0"><div class="nm"><span class="muted">${tag}</span> ${esc(it.ex.n)}</div><div class="rx">${rxText(it)}</div>
-      ${sug && sug.kg ? `<div class="hint">Charge conseillée : <b class="num" style="color:var(--ink)">${sug.kg} kg</b>${sug.capped ? ' · ' + esc(sug.txt) : ''}</div>` : sug ? `<div class="hint">${esc(sug.txt)}</div>` : ''}
+      ${sug && sug.kg ? `<div class="hint">Charge conseillée : <b class="num" style="color:var(--ink)">${sug.kg} kg</b>${sug.capped || sug.start ? ' · ' + esc(sug.txt) : ''}</div>` : sug ? `<div class="hint">${esc(sug.txt)}</div>` : ''}
       ${it.note ? `<div class="hint">${esc(it.note)}</div>` : ''}</div></button>
       <div class="stack" style="gap:6px"><button class="more" data-a="rest-go" data-v="${it.p.rest}" data-l="${esc(it.ex.n)}" aria-label="Lancer le repos de ${fmtRest(it.p.rest)}">${ic('timer')}</button><button class="more" data-a="report" data-slot="${esc(it.slotKey)}" aria-label="Signaler un problème avec ${esc(it.ex.n)}">${ic('dots', 1)}</button></div></div>`;
   }
@@ -547,7 +549,7 @@
   function videoOf(x) {
     const mine = (P().videos || {})[x.id];
     if (mine) return { url: mine, src: 'Ton lien' };
-    if (x.video) return { url: x.video, src: x.videoSrc === 'Nicolas' ? 'Vidéo envoyée par Nicolas' : 'Vidéo de l\'équipe' };
+    if (x.video) return { url: x.video, src: 'Vidéo de référence' };
     return { url: 'https://www.youtube.com/results?search_query=' + encodeURIComponent(x.n + ' exercice technique'), src: 'Recherche YouTube', search: true };
   }
   function videoBlock(x, sh) {
@@ -562,6 +564,13 @@
   function findItem(slotKey) { const s = curSess(); if (!s || !s.blocks) return null; for (const b of s.blocks) for (const it of b.items) if (it.slotKey === slotKey) return it; return null; }
 
   // ---------- lecteur de séance guidé ----------
+  // descriptif suffisant sans l'animation : comment faire + points d'attention
+  function howTo(x, short) {
+    const cues = x.cues || [], norm = t => t.toLowerCase().replace(/[^a-zà-ÿ0-9]/g, ''), att = short ? [] : (x.att || []).filter(a => !cues.some(c => norm(c) === norm(a)));
+    if (!cues.length && !att.length) return '';
+    return `<div class="howto">${cues.length ? `<div class="eyebrow">Comment faire</div><ol>${cues.map(c => `<li>${esc(c)}</li>`).join('')}</ol>` : ''}
+      ${att.length ? `<div class="att">${ic('alert')}<ul>${att.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}</div>`;
+  }
   function buildSteps(s) {
     const steps = [];
     const wr = s.warmup.rounds || 2; for (let r = 0; r < wr; r++) s.warmup.items.forEach((x, i) => steps.push({ t: 'wu', ex: x, sec: 40, rest: 20, label: `Échauffement · tour ${r + 1}/${wr}` }));
@@ -575,10 +584,42 @@
     });
     return steps;
   }
-  function startPlayer() {
-    const s = curSess();
-    const prev = logOf(st.page.n, s.key);
-    st.player = { steps: buildSteps(s), i: 0, mode: 'work', t0: Date.now(), log: {}, sess: s, timer: null, remain: 0, prev };
+  // séance en cours sauvegardée sur l'appareil à chaque série : rien n'est perdu si on quitte par erreur
+  const draftKey = (n, key) => n + '|' + key;
+  const draftOf = (n, key) => { const d = (D().drafts || {})[draftKey(n, key)]; return d && Date.now() - d.saved < 7 * 864e5 ? d : null; };
+  function saveDraft() {
+    const pl = st.player; if (!pl || pl.mode === 'end') return;
+    D().drafts = Object.assign({}, D().drafts, { [draftKey(pl.n, pl.sess.key)]: { i: pl.i, log: pl.log, elapsed: Date.now() - pl.t0, nsteps: pl.steps.length, saved: Date.now() } });
+    save();
+  }
+  function dropDraft(n, key) { if (D().drafts) { delete D().drafts[draftKey(n, key)]; save(); } }
+  // barre de progression : un segment par bloc, temps restant estimé (ajusté à ton rythme réel)
+  function progHead(pl) {
+    const steps = pl.steps, raw = steps.map(x => x.t === 'wu' ? x.sec + x.rest : G.itemWork(x.it) + (x.rest || 0) + 10);
+    const k0 = pl.sess.min ? pl.sess.min * 60 / raw.reduce((a, b) => a + b, 0) : 1, est = raw.map(v => v * k0); // calé sur la durée annoncée de la séance
+    const pf = pl.paceFrom || { i: 0, t: pl.t0 }; // le rythme réel se mesure depuis le dernier saut ou la reprise
+    const doneEst = est.slice(pf.i, pl.i).reduce((a, b) => a + b, 0), restEst = est.slice(pl.i).reduce((a, b) => a + b, 0);
+    const el = (Date.now() - pf.t) / 1000;
+    const pace = doneEst > 120 ? Math.min(1.6, Math.max(0.7, el / doneEst)) : 1;
+    const remMin = Math.max(1, Math.round(restEst * pace / 60));
+    const end = new Date(Date.now() + restEst * pace * 1000).toLocaleTimeString('fr-BE', { hour: '2-digit', minute: '2-digit' });
+    const segs = []; steps.forEach((x, k) => { const g = x.t === 'wu' ? 'Échauf.' : x.grp; const last = segs[segs.length - 1]; if (last && last.g === g) { last.n += est[k]; last.to = k; } else segs.push({ g, n: est[k], from: k, to: k }); });
+    const tot = est.reduce((a, b) => a + b, 0);
+    const cur = segs.find(sg => pl.i >= sg.from && pl.i <= sg.to) || segs[0];
+    const inBlk = cur ? steps.slice(cur.from, cur.to + 1).filter(x => x.t !== 'wu').length : 0, doneBlk = cur ? steps.slice(cur.from, pl.i).filter(x => x.t !== 'wu').length : 0;
+    const left0 = segs.filter(sg => sg.from > (cur ? cur.to : 0)).map(sg => sg.g === 'É' ? 'épaule' : sg.g);
+    const lt = left0.filter(g => g.length === 1), left = (left0.includes('épaule') ? ['épaule'] : []).concat(lt.length > 2 ? [`${lt[0]} à ${lt[lt.length - 1]}`] : lt);
+    return `<div class="row"><button class="icon-btn" data-a="pl-close" aria-label="Quitter">${ic('close')}</button>
+      <div class="grow"><div class="segs">${segs.map(sg => { const f = pl.i > sg.to ? 100 : pl.i < sg.from ? 0 : Math.round(100 * est.slice(sg.from, pl.i).reduce((a, b) => a + b, 0) / sg.n); return `<div class="seg-b ${sg === cur ? 'cur' : ''}" style="flex:${sg.n.toFixed(0)}"><i style="width:${f}%"></i><span>${esc(sg.g === 'É' ? 'É' : sg.g)}</span></div>`; }).join('')}</div>
+      <div class="row small" style="margin-top:4px;gap:6px"><span class="grow muted">${cur && cur.g !== 'Échauf.' ? `Bloc ${esc(cur.g === 'É' ? 'épaule' : cur.g)} · ${doneBlk + 1}/${inBlk}` : 'Échauffement'}${left.length ? ` · puis ${esc(left.join(', '))}` : ' · dernier bloc'}</span><b class="num" style="white-space:nowrap">≈ ${remMin} min · fin ${end}</b></div></div></div>`;
+  }
+  function startPlayer(resume) {
+    const s = curSess(), n = st.page.n;
+    const prev = logOf(n, s.key), steps = buildSteps(s);
+    const d = resume ? draftOf(n, s.key) : null;
+    if (!resume) dropDraft(n, s.key);
+    st.player = { steps, i: 0, mode: 'work', t0: Date.now(), log: {}, sess: s, n, timer: null, remain: 0, prev };
+    if (d) { st.player.log = d.log || {}; st.player.t0 = Date.now() - (d.elapsed || 0); st.player.i = d.nsteps === steps.length ? Math.min(d.i, steps.length - 1) : Math.max(0, steps.findIndex(x => x.t !== 'wu')); st.player.paceFrom = { i: st.player.i, t: Date.now() }; }
     wake(true); beep(0); render();
   }
   function playerHTML() {
@@ -588,8 +629,11 @@
       <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté globale de la séance (RPE 1 à 10)</span>${rpePicker('pl_rpe', pl.rpe || '', true)}${rpeHelp()}</div>
 
       <div class="grow"></div><button class="btn primary block" data-a="pl-save">Enregistrer la séance</button><button class="btn ghost block" data-a="pl-quit">Quitter sans enregistrer</button></div>`;
+    if (pl.mode === 'quit') { const nd = Object.values(pl.log).reduce((a, x) => a + x.sets.length, 0);
+      return `<div class="player-in"><h2 style="font-size:28px">Quitter la séance ?</h2><p class="muted" style="margin:0">${nd} série${nd > 1 ? 's' : ''} notée${nd > 1 ? 's' : ''}. Ta progression est gardée sur cet appareil.</p>
+      <div class="grow"></div><button class="btn primary block" data-a="pl-resume">Continuer la séance</button><button class="btn block" data-a="pl-later">Reprendre plus tard</button>${nd ? '<button class="btn block" data-a="pl-finish">Terminer ici et enregistrer</button>' : ''}<button class="btn ghost block" data-a="pl-abandon">Abandonner la séance</button></div>`; }
     const st0 = pl.steps[pl.i], tot = pl.steps.length;
-    const head = `<div class="row"><button class="icon-btn" data-a="pl-close" aria-label="Quitter">${ic('close')}</button><div class="grow"><div class="prog"><i style="width:${Math.round((pl.i / tot) * 100)}%"></i></div></div><span class="small muted num">${pl.i + 1}/${tot}</span></div>`;
+    const head = progHead(pl);
     if (pl.mode === 'rest') {
       const nx = pl.steps[pl.i + 1];
       const nxEx = nx ? (nx.t === 'wu' ? nx.ex : nx.it.ex) : null;
@@ -598,8 +642,9 @@
         <div class="row" style="justify-content:center"><button class="btn sm ghost" data-a="pl-add">+15 s</button><button class="btn sm" data-a="pl-skip">Passer</button></div>
         ${nxEx ? `<div class="card row" style="margin-top:auto"><div style="width:84px;height:72px" data-anim="${nxEx.id}"></div><div class="grow"><div class="eyebrow">Ensuite</div><div style="font-weight:700">${esc(nxEx.n)}</div><div class="small muted">${nx.t === 'set' ? `Série ${nx.set}/${nx.of}` : '40 s'}</div></div></div>` : ''}</div>`;
     }
-    if (st0.t === 'wu') return `<div class="player-in">${head}<div class="eyebrow">${st0.label}</div><h2 style="font-size:28px">${esc(st0.ex.n)}</h2>
+    if (st0.t === 'wu') return `<div class="player-in">${head}<div class="eyebrow">${st0.label}</div><h2 style="font-size:28px">${esc(st0.ex.n)}</h2>${st0.ex.mus ? `<div class="small muted">Muscles : ${esc(st0.ex.mus.charAt(0).toLowerCase() + st0.ex.mus.slice(1))}</div>` : ''}
       <div class="stage"><div data-anim="${st0.ex.id}" style="width:100%"></div></div>
+      ${howTo(st0.ex, true)}
       <div style="display:grid;place-items:center">${ring(pl.remain || st0.sec, st0.sec, pl.timer ? 'work' : '')}</div>
       ${pl.timer ? `<button class="btn block" data-a="pl-next">Passer</button>` : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Go 40 s</button><button class="link" data-a="pl-skipwu" style="align-self:center">Passer l'échauffement</button>`}</div>`;
     const it = st0.it, x = it.ex, p = it.p;
@@ -609,9 +654,9 @@
     const isTime = x.load === 'time';
     const per = x.uni || x.side ? ' par côté' : '';
     return `<div class="player-in">${head}
-      <div class="row"><div class="grow"><div class="eyebrow">${it.slot ? `${st0.grp} · ` : ''}Série ${st0.set} sur ${st0.of}</div><h2 style="font-size:26px">${esc(x.n)}</h2></div><button class="more" data-a="pl-info" data-id="${x.id}" aria-label="Consignes">${ic('info')}</button></div>
+      <div class="row"><div class="grow"><div class="eyebrow">${it.slot ? `${st0.grp} · ` : ''}Série ${st0.set} sur ${st0.of}</div><h2 style="font-size:26px">${esc(x.n)}</h2>${x.mus ? `<div class="small muted" style="margin-top:2px">Muscles : ${esc(x.mus.charAt(0).toLowerCase() + x.mus.slice(1))}</div>` : ''}</div><button class="more" data-a="pl-info" data-id="${x.id}" aria-label="Consignes">${ic('info')}</button></div>
       <div class="stage"><div data-anim="${x.id}" style="width:100%"></div></div>
-      ${x.att ? `<div class="att">${ic('alert')}<ul>${x.att.map(c => `<li>${esc(c)}</li>`).join('')}</ul></div>` : ''}
+      ${howTo(x)}
       ${isTime ? `<div style="display:grid;place-items:center">${ring(pl.remain || p.t, p.t, pl.timer ? 'work' : '')}</div><div class="small muted" style="text-align:center">${p.t} s${per}${it.note ? ' · ' + esc(it.note) : ''}</div>
         ${pl.timer ? '' : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Lancer ${p.t} s</button>`}<button class="btn block ${pl.timer ? 'primary' : 'ghost'}" data-a="pl-done">Série terminée</button>`
       : `<div class="row" style="align-items:flex-end"><div class="grow"><div class="big num">${p.r}<small> rép.${per}</small></div>${x.load !== 'plyo' ? `<div class="small muted">RPE cible ${String(p.rpe).replace('.', ',')}${it.note ? ' · ' + esc(it.note) : ''}</div>` : `<div class="small muted">Qualité maximale${it.note ? ' · ' + esc(it.note) : ''}</div>`}</div></div>
@@ -645,6 +690,7 @@
   }
   function nextStep() {
     const pl = st.player; clearInterval(pl.timer); pl.timer = null;
+    setTimeout(saveDraft, 0);
     const cur = pl.steps[pl.i];
     if (pl.i >= pl.steps.length - 1) { pl.mode = 'end'; wake(false); render(); return; }
     if (pl.mode === 'work' && cur.rest) { pl.mode = 'rest'; render(); countdown(cur.rest, () => { pl.mode = 'work'; pl.i++; autoWu(); render(); }, 'rest'); return; }
@@ -856,10 +902,14 @@
     sendfb: () => { const t = (document.getElementById('rep_txt') || {}).value || ''; D().feedback.push({ date: Date.now(), week: st.page.n, slot: st.sheet.slot, reason: 'autre', text: t }); save(); st.sheet = null; toast('Merci, c\'est noté'); renderOverlays(); },
     lieu: (el, v) => { const pg = st.page; st.lieux[pg.n] = Object.assign({}, st.lieux[pg.n], { [pg.key]: v }); renderOverlays(); },
     start: () => { startPlayer(); },
-    'pl-close': () => { if (!st.player.confirm) { st.player.confirm = true; toast('Appuie encore pour quitter la séance'); setTimeout(() => { if (st.player) st.player.confirm = false; }, 2500); return; } clearInterval(st.player.timer); st.player = null; wake(false); render(); },
+    'pl-close': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; saveDraft(); pl.back = pl.mode; pl.mode = 'quit'; render(); },
+    'pl-resume': () => { const pl = st.player; pl.mode = pl.back && pl.back !== 'quit' ? pl.back : 'work'; render(); },
+    'pl-later': () => { saveDraft(); st.player = null; wake(false); render(); toast('Séance gardée : tu pourras la reprendre'); },
+    'pl-finish': () => { const pl = st.player; pl.mode = 'end'; wake(false); render(); },
+    'pl-abandon': () => { const pl = st.player; dropDraft(pl.n, pl.sess.key); st.player = null; wake(false); render(); },
     'pl-go': () => { const pl = st.player, s0 = pl.steps[pl.i]; const sec = s0.t === 'wu' ? s0.sec : s0.it.p.t; countdown(sec, () => { if (s0.t === 'wu') nextStep(); else { recordSet(); nextStep(); } }, 'work'); render(); },
     'pl-next': () => nextStep(),
-    'pl-skipwu': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.i = pl.steps.findIndex(x => x.t !== 'wu'); pl.mode = 'work'; render(); },
+    'pl-skipwu': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.i = pl.steps.findIndex(x => x.t !== 'wu'); pl.paceFrom = { i: pl.i, t: Date.now() }; pl.mode = 'work'; render(); },
     'pl-done': () => { recordSet(); nextStep(); },
     'pl-add': () => { const pl = st.player; const rem = pl.remain + 15; countdown(rem, () => { pl.mode = 'work'; pl.i++; autoWu(); render(); }, 'rest'); pl.restTot = Math.max(pl.restTot, rem); },
     'pl-skip': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.mode = 'work'; pl.i++; autoWu(); render(); },
@@ -868,9 +918,10 @@
       const pl = st.player, s = pl.sess;
       if (!document.getElementById('pl_rpe').value) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
       upsertLog({ week: st.page.n, key: s.key, kind: 'renfo', title: s.title, date: new Date().toISOString(), dur: Math.max(1, Math.round((Date.now() - pl.t0) / 60000)), rpe: +document.getElementById('pl_rpe').value, ex: pl.log, lieu: s.lieu }); cardioAdapt();
-      st.player = null; st.page = null; wake(false); toast('Séance enregistrée'); render();
+      dropDraft(pl.n, s.key); st.player = null; st.page = null; wake(false); toast('Séance enregistrée'); render();
     },
-    'pl-quit': () => { st.player = null; wake(false); render(); },
+    'pl-quit': () => { dropDraft(st.player.n, st.player.sess.key); st.player = null; wake(false); render(); },
+    resume: () => { startPlayer(true); },
     step: (el) => { const i = document.getElementById(el.dataset.id); const v = (+i.value || 0) + +el.dataset.v; i.value = Math.max(0, Math.round(v * 10) / 10); },
     rpe: el => { const id = el.dataset.id; document.getElementById(id).value = el.dataset.v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); if (id === 'pl_rpe' && st.player) st.player.rpe = +el.dataset.v; },
     'cl-done': (el, v) => { document.getElementById('cl_done').value = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); },

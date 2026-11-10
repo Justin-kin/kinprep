@@ -99,6 +99,7 @@
     // ---------- épaule et omoplate ----------
     ext_rot: ['Coude collé au corps (serviette roulée)', 'Mouvement lent', 'Élastique léger'],
     ext_rot_ecc: ['Coude collé au corps', 'Retour en 3 s', 'Élastique léger'],
+    ext_rot_side: ['Coude collé au corps, serviette roulée dessous', 'Retour en 2 s', 'Charge légère, sans compenser avec le buste'],
     ext_rot_90: ['Coude à hauteur d\'épaule, il ne descend pas', 'Retour en 2 s', 'Élastique léger'],
     pushup_plus: ['Bras tendus, seules les omoplates bougent', 'Corps gainé, bas du dos neutre', 'Pousse le sol au maximum en haut'],
     face_pull: ['Tire vers le front, coudes hauts', 'Buste stable, sans cambrer', 'Pause 1 s en fin de mouvement'],
@@ -139,6 +140,7 @@
     rot_throw: ['Pieds au sol, poussée de la jambe arrière', 'Les hanches tournent avant les bras', 'Bloque la jambe avant au lâcher'],
     frappe_band: ['Les hanches partent avant le bras', 'Au moins un pied ancré au sol', 'Ramène le bras quasi tendu vers le bas'],
     frappe_full_band: ['Au moins un pied ancré au sol pendant toute la frappe', 'Armé → balayage montant → ramené', 'Bras quasi tendu, légère flexion du coude seulement'],
+    frappe_air: ['Au moins un pied ancré au sol', 'Les hanches partent avant le bras', 'Ramené rapide, bras quasi tendu'],
     frappe_step: ['Pied d\'appui planté avant de frapper', 'Genou avant gainé, dans l\'axe du pied', 'Ramené rapide, bras quasi tendu'],
     rot_throw_diag: ['Poussée de la jambe arrière, les bras suivent', 'Diagonale du bas vers le haut', 'Pieds au sol au lâcher'],
     rot_band: ['Les hanches tournent avant le bras', 'Pied arrière qui pivote', 'Bras quasi tendu'],
@@ -148,7 +150,8 @@
     frappe_ball: ['Rotation des hanches puis du bras', 'Pied d\'appui ancré', 'Bras quasi tendu à l\'impact'],
     hop_rot: ['Genou d\'appui dans l\'axe du pied', 'Pied fixe au sol, c\'est la hanche qui tourne', 'Réception silencieuse'],
     // ---------- puissance haut du corps ----------
-    push_up_plyo: ['Corps gainé d\'un bloc', 'Réception bras souples', 'Pousse le plus vite possible'],
+    push_up_plyo: ['Pousse assez fort pour claquer des mains', 'Corps gainé d\'un bloc', 'Réception bras souples'],
+    push_up_plyo_knee: ['Pousse assez fort pour claquer des mains', 'Ligne droite des genoux à la tête', 'Réception bras souples'],
     push_up_plyo_inc: ['Gainage complet', 'Réception bras souples', 'Pousse le plus vite possible'],
     db_snatch: ['Les jambes et les hanches lancent l\'haltère', 'Haltère près du corps', 'Bras tendu, verrouillé en haut'],
     // ---------- sauts et réceptions ----------

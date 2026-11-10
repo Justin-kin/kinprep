@@ -238,6 +238,8 @@
   A.push_up_clap = A.push_up_plyo;
   const puk = (t, hx) => P({ a: ['kn', 64, 134], t, hd: t + 4, ln: [t - 180, -100, -100], lf: [t - 180, -100, -100], an: [0, 0], af: [0, 0], ik: { hn: [hx, G, 1], hf: [hx - 2, G, 1] } });
   A.push_up_knee = an([puk(123, 126), puk(104, 126)]);
+  const pukA = (t, hx, hy) => P({ a: ['kn', 64, 134], t, hd: t + 4, ln: [t - 180, -100, -100], lf: [t - 180, -100, -100], an: [0, 0], af: [0, 0], ik: { hn: [hx, hy, 1], hf: [hx - 2, hy, 1] } });
+  A.push_up_plyo_knee = an([pukA(104, 126, G), pukA(128, 128, G - 12), pukA(104, 126, G)], 0.4, 0.1, 'loop');
   const benchI = { k: 'bench', x: 106, y: 108, w: 60 };
   A.push_up_incline = an([pu(131, 118, 108, { a: ['fn', 30, 132], p: [benchI] }), pu(116, 118, 108, { a: ['fn', 30, 132], p: [benchI] })]);
   const pl = (t, o = {}) => P(Object.assign({ a: ['fn', 34, 132], t, hd: t + 4, ln: [t - 180, t - 180, 30], lf: [t - 180, t - 180, 30], an: [0, 0], af: [0, 0], ik: { hn: [164, 137, 1], hf: [162, 137, 1] } }, o));
@@ -292,6 +294,7 @@
   const fDown = (x, o = {}) => P(Object.assign({ a: ['ff', x, G], t: 150, hd: 160, ln: [-36, -70, 70], lf: [24, -16, 90], an: [-8, -2], af: [-40, -30], ik: { fn: [x - 40, 138, -1] } }, o));
   const bandBack = { k: 'band', from: 'hn', to: [14, 46] }, postBack = { k: 'wall', x: 14, top: 30 };
   A.frappe_full = an([fArm(120, { p: [postBack, bandBack] }), fHit(120, { p: [postBack, bandBack] }), fDown(120, { p: [postBack, bandBack] })], 0.3, 0.35, 'loop');
+  A.frappe_air = an([fArm(100), fHit(100), fDown(100)], 0.3, 0.35, 'loop');
   A.frappe_full_ball = an([fArm(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fHit(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fDown(110, { p: [{ k: 'ball', x: 186, y: 4, r: 14 }] })], 0.3, 0.35, 'loop');
   A.frappe_step = an([fArm(80, { lf: [6, -4, 90], ik: { fn: [66, 138, -1] } }), fArm(112, { ik: { fn: [66, 138, -1] } }), fHit(112, { ik: { fn: [70, 138, -1] } }), fDown(112, { ik: { fn: [72, 138, -1] } })], 0.3, 0.25, 'loop');
   A.straight_pulldown = an([stand(100, { ln: [6, -6, 90], lf: [-6, -2, 90], t: 176, an: [160, 164], af: [156, 160], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] }), stand(100, { ln: [10, -10, 90], lf: [-4, -2, 90], t: 168, an: [-14, -10], af: [-10, -8], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] })], 0.3, 0.45);
@@ -302,6 +305,9 @@
   A.ab_wheel = an([wk(40, 130, 84), wk(-58, 97, 178)], 1.6, 0.5);
   const ws = (lg, t, wx) => P({ a: ['fn', 40, G], t, hd: t + 6, ln: [lg, lg, 90], lf: [lg, lg, 90], an: [0, 0], af: [0, 0], ik: { hn: [wx, G - 7, 1], hf: [wx - 1, G - 7, 1] }, p: [{ k: 'wheel' }] });
   A.ab_wheel_stand = an([ws(-30, 60, 112), ws(-68, 80, 194)], 1.8, 0.5);
+  // rotation externe couché sur le côté : vu de face, corps à l'horizontale sur le banc, avant-bras qui passe du ventre vers le plafond
+  const erS = fa => P({ a: ['hip', 92, 97], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [-90, fa], af: [96, 176], p: [{ k: 'bench', x: 46, y: 104, w: 112 }, { k: 'db', j: 'hn' }] });
+  A.ext_rot_side = an([erS(72), erS(172)], 1.4, 0.5);
   A.pushup_plus = an([pu(112, 136, G), pu(115, 136, G)], 0.6, 0.3);
   A.hop_rot = A.lat_bound_rot;
 
