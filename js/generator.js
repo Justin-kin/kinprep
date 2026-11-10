@@ -282,13 +282,28 @@
     const d = ROLE_DRILLS[role] || ROLE_DRILLS.pointe;
     return { label: `Vitesse spécifique · ${(KP.ROLES.find(r => r.id === role) || {}).label || ''}`, type: 'role', min: Math.round(12 * (scale || 1)), drills: d.map(([id, t, v]) => ({ ex: KP.EX_BY_ID[id], t, v: scale && scale < 1 ? v.replace(/(\d+)/, m => Math.max(2, Math.round(m * scale))) : v })) };
   }
+  // échauffement et retour au calme des séances intenses (affichés comme des blocs à part entière)
+  const WU = short => ({ label: short ? 'Gammes avant les sprints 4\'' : 'Échauffement 12\'', type: 'wu', min: short ? 4 : 12, drills: [
+    ...(short ? [] : [['run', 'Footing lent', '8 min, très facile']]), ['high_knees', 'Montées de genoux', '2 × 15 m'], ['butt_kicks', 'Talons-fesses', '2 × 15 m'],
+    ['shuffle', 'Pas chassés', '15 m de chaque côté'], ['crossover', 'Pas croisés', '15 m de chaque côté'], ['sprint_start', 'Accélérations progressives', '3 × 20 m, jusqu\'à 90 %, retour en marchant']].map(([id, t, v]) => ({ ex: KP.EX_BY_ID[id], t, v })).filter(d => d.ex) });
+  const CD = () => ({ label: 'Retour au calme 7\'', type: 'cd', min: 7, drills: [
+    ['run', 'Footing très lent ou marche', '5 min'], ['leg_swing', 'Mobilité hanches', '10 balancés par jambe, avant-arrière et côté'], ['calf', 'Étirement mollets contre un mur', '30 s par jambe']].map(([id, t, v]) => ({ ex: KP.EX_BY_ID[id], t, v })).filter(d => d.ex) });
+  const INTENSE = ['int', 'spr', 'rsa', 'role'];
   const DEB = (n, m) => ({ label: `${n} déboulés de ${m} m`, type: 'deb', min: 3, detail: 'Au milieu de la sortie : accélération progressive jusqu\'à 80 %, puis reprise du footing.' });
 
+  const cardioMin = blocks => blocks.reduce((a, b) => a + (b.min || 0), 0) + (blocks.some(b => b.type === 'wu') ? 0 : 3);
   function cardioSessions(n, profile) {
     const { phase, wtype, wi, k } = C.phaseOf(n);
     const vma = +profile.vma || null, role = profile.role || 'pointe';
     const out = [];
-    const mk = (key, title, essential, blocks, o) => out.push(Object.assign({ key, kind: 'cardio', title, essential, blocks, min: 10 + blocks.reduce((a, b) => a + (b.min || 0), 0) }, o || {}));
+    const mk = (key, title, essential, blocks, o) => {
+      if (blocks.some(b => INTENSE.includes(b.type))) {
+        const ef = blocks[0] && blocks[0].type === 'ef'; // l'endurance fait office d'échauffement : gammes courtes avant la partie intense
+        blocks = ef ? [blocks[0], WU(true), ...blocks.slice(1), CD()] : [WU(), ...blocks, CD()];
+      }
+      else if (blocks[0] && blocks[0].type === 'ef') blocks = [Object.assign({}, blocks[0], { detail: 'Démarre les 5 premières minutes plus lentement, termine par 2-3 min de marche. ' + blocks[0].detail }), ...blocks.slice(1)];
+      out.push(Object.assign({ key, kind: 'cardio', title, essential, blocks, min: cardioMin(blocks) }, o || {}));
+    };
     const fam = phase.id;
     if (phase.fam === 'ppg') {
       const i1 = fam === 'ppg2' ? wi + 1 : fam === 'beta_ppg' ? 1 : wi, i2 = fam === 'ppg2' ? wi + 2 : fam === 'beta_ppg' ? 1 : wi;
@@ -350,7 +365,7 @@
   }
   const MODES = {
     normal: { label: 'Normale', desc: 'Programme complet.' },
-    allege: { label: 'Allégée', desc: 'Une série de moins par exercice, séances facultatives retirées.' },
+    allege: { label: 'Allégée', desc: 'Exercices principaux et fractionné gardés en entier ; une série de moins sur les accessoires, séances facultatives retirées.' },
     minimal: { label: 'Minimale', desc: 'Uniquement l\'essentiel : renfo express et un cardio court.' },
     repos: { label: 'Récupération', desc: 'Mobilité et récupération active seulement.' },
   };
@@ -359,7 +374,7 @@
     const light = ['deload', 'taper', 'comp', 'light', 'recup'].includes(wtype);
     if (sess.kind === 'renfo') {
       const drop = mode === 'minimal' ? 2 : mode === 'allege' ? 3 : 99;
-      sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < drop).map(i => ((mode === 'allege' && !light) || mode === 'minimal') ? Object.assign({}, i, { p: Object.assign({}, i.p, { s: Math.max(Math.min(2, i.p.s), i.p.s - 1) }) }) : i) })).filter(b => b.items.length);
+      sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < drop).map(i => !i.fixed && ((mode === 'allege' && !light && i.pri > 1) || mode === 'minimal') ? Object.assign({}, i, { p: Object.assign({}, i.p, { s: Math.max(Math.min(2, i.p.s), i.p.s - 1) }) }) : i) })).filter(b => b.items.length);
       sess.min = estMinutes(sess);
       let guard = 0;
       const dropPri = pr => { sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < pr) })).filter(b => b.items.length); };
@@ -368,8 +383,18 @@
       while (maxMin && sess.min > maxMin && guard < steps.length) { steps[guard++](); sess.min = estMinutes(sess); }
       let gi = 0; sess.blocks.forEach(b => { if (!b.shoulder) b.grp = String.fromCharCode(65 + gi++); });
     } else if (sess.kind === 'cardio' && (mode === 'allege' || mode === 'minimal')) {
-      sess.blocks = sess.blocks.map(b => b.type === 'int' ? Object.assign({}, b, { sets: Math.max(1, b.sets - 1), label: b.label.replace(/: (\d+) ×/, (m, x) => `: ${Math.max(1, x - 1)} ×`), min: Math.round(b.min * 0.66) }) : b.type === 'ef' ? Object.assign({}, b, { label: b.label.replace(/\d+'/, Math.max(20, Math.round(b.min * 0.7)) + "'"), min: Math.max(20, Math.round(b.min * 0.7)) }) : b);
-      sess.min = 10 + sess.blocks.reduce((a, b) => a + (b.min || 0), 0);
+      // on garde toujours au moins 2 blocs d'intermittent : la qualité du travail compte plus que les minutes gagnées
+      const efK = mode === 'minimal' ? 0.7 : 0.85;
+      sess.blocks = sess.blocks.map(b => {
+        if (b.type === 'int') {
+          const sets = b.sets > 2 ? b.sets - 1 : b.sets, reps = mode === 'minimal' && b.sets <= 2 ? Math.max(5, b.reps - 2) : b.reps;
+          if (sets === b.sets && reps === b.reps) return b;
+          return Object.assign({}, b, { sets, reps, label: b.label.replace(/: \d+ × \d+/, `: ${sets} × ${reps}`), detail: b.detail.replace(/^\d+ ×/, `${reps} ×`), min: Math.round(sets * reps * (b.on + b.off) / 60 + (sets - 1) * 3) });
+        }
+        if (b.type === 'ef') { const m = Math.max(20, Math.round(b.min * efK)); return Object.assign({}, b, { label: b.label.replace(/\d+'/, m + "'"), min: m }); }
+        return b;
+      });
+      sess.min = cardioMin(sess.blocks);
     }
     return sess;
   }

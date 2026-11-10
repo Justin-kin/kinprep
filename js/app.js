@@ -457,9 +457,9 @@
       <div class="stack" style="gap:6px"><button class="more" data-a="rest-go" data-v="${it.p.rest}" data-l="${esc(it.ex.n)}" aria-label="Lancer le repos de ${fmtRest(it.p.rest)}">${ic('timer')}</button><button class="more" data-a="report" data-slot="${esc(it.slotKey)}" aria-label="Signaler un problème avec ${esc(it.ex.n)}">${ic('dots', 1)}</button></div></div>`;
   }
   function cardioBlock(b) {
-    if (b.type === 'role') return `<section class="blk"><div class="blk-h"><h3 style="font-size:19px">${esc(b.label)}</h3></div>
+    if (b.drills) return `<section class="blk"><div class="blk-h"><h3 style="font-size:19px">${esc(b.label)}</h3>${b.type === 'wu' ? '<span class="small muted">Indispensable avant de pousser</span>' : b.type === 'cd' ? '<span class="small muted">Pour bien récupérer</span>' : ''}</div>
       ${b.drills.map(d => `<button class="ex" data-a="open-ex" data-id="${d.ex.id}" style="grid-template-columns:76px 1fr">${figThumb(d.ex.id)}<div><div class="nm">${esc(d.t)}</div><div class="rx">${esc(d.v)}</div></div></button>`).join('')}
-      <button class="btn sm ghost" data-a="signal">${ic('bolt')} Signal visuel de réaction</button></section>`;
+      ${b.type === 'role' ? `<button class="btn sm ghost" data-a="signal">${ic('bolt')} Signal visuel de réaction</button>` : ''}</section>`;
     const timer = ['int', 'rsa'].includes(b.type) ? `<button class="btn sm ghost" data-a="itimer" data-v='${esc(JSON.stringify(b.type === 'int' ? { sets: b.sets, reps: b.reps, on: b.on, off: b.off, rec: 180 } : { sets: +b.label.match(/: (\d+)/)[1], reps: +b.label.match(/× (\d+) ×/)[1], on: 5, off: 15, rec: 180 }))}'>${ic('timer')} Lancer le minuteur</button>` : '';
     return `<div class="card"><div style="font:700 20px/1.15 var(--display)">${esc(b.label)}</div><p class="small" style="margin:6px 0 0">${esc(b.detail || '')}</p>${timer ? `<div style="margin-top:10px">${timer}</div>` : ''}</div>`;
   }
