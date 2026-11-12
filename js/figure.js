@@ -199,10 +199,11 @@
   }
   function mountAll(root) {
     (root || document).querySelectorAll('[data-anim]').forEach(el => {
-      if (el._mounted === el.dataset.anim) return;
-      el._mounted = el.dataset.anim;
+      const tag = el.dataset.anim + '|' + (el.dataset.view || '');
+      if (el._mounted === tag) return;
+      el._mounted = tag;
       const ex = KP.EX_BY_ID[el.dataset.anim];
-      mount(el, ex ? KP.animOf(ex) : null);
+      mount(el, ex ? (el.dataset.view === '2' && KP.ANIMS[ex.anim + '@2']) || KP.animOf(ex) : null);
     });
   }
 

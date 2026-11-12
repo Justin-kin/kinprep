@@ -41,6 +41,7 @@
     ['Haut du dos sur le banc, barre sur le bassin (protège avec une serviette)', 'Monte jusqu\'à l\'alignement épaules-bassin-genoux', 'Marque 1 seconde en haut'], ['Cambrer le bas du dos en haut']);
   X('hip_thrust_db', 'Hip thrust (haltère)', 'hip_thrust', ['LEG_HIP'], ['halteres|kettlebell', 'banc|chaise'], 2, 'kg', ['hanche'], 'Fessiers',
     ['Haut du dos sur le banc, charge sur le bassin', 'Pousse dans les talons', 'Serre les fessiers 1 seconde en haut'], ['Pousser avec le bas du dos']);
+  X('bridge_db', 'Pont fessier avec haltère', 'bridge_db', ['LEG_HIP', 'LUMBAR'], ['halteres'], 1, 'kg', [], 'Fessiers, ischios', ['Allongé, pieds à plat près des fesses, haltère posé sur les hanches et tenu à deux mains', 'Monte le bassin jusqu\'à l\'alignement épaules-bassin-genoux', 'Redescends sans poser complètement les fesses'], ['Cambrer au lieu de serrer les fessiers']);
   X('bridge', 'Pont fessier', 'bridge', ['LEG_HIP', 'LUMBAR'], [], 1, 'pdc', [], 'Fessiers, ischios',
     ['Allongé, pieds à plat près des fesses', 'Monte le bassin jusqu\'à l\'alignement', 'Redescends lentement'], ['Cambrer au lieu de serrer les fessiers']);
   X('kb_swing', 'Kettlebell swing', 'kb_swing', ['LEG_HIP', 'POWER_OLY'], ['kettlebell'], 2, 'kg', ['lombaires'], 'Fessiers, ischios, gainage',
@@ -141,6 +142,7 @@
   X('ytw', 'Y-T-W allongé', 'ytw', ['SHOULDER_PREV', 'SCAP'], [], 1, 'pdc', [], 'Bas trapèzes, coiffe', ['Allongé sur le ventre, front au sol', 'Lève les bras en Y, puis T, puis W', 'Pouces vers le plafond'], ['Lever la tête']);
   X('wrist_ecc', 'Excentrique extenseurs du poignet', 'wrist', ['ELBOW_PREV'], ['halteres'], 1, 'kg', [], 'Extenseurs du poignet (coude)', ['Avant-bras sur la cuisse, paume vers le bas', 'Aide-toi de l\'autre main pour monter', 'Descends seul en 4 s'], ['Charge trop lourde'], Object.assign({ note: 'Protège le coude (épicondyle) sollicité à la frappe.' }, U));
   X('pronosup', 'Pronation-supination marteau', 'wrist', ['ELBOW_PREV'], ['halteres'], 1, 'kg', [], 'Avant-bras', ['Tiens l\'haltère par une extrémité', 'Tourne lentement paume vers le haut puis vers le bas', 'Coude fixe'], ['Bouger le coude'], U);
+  X('elbow_iso_floor', 'Isométrie bras tendu au sol (coude)', 'elbow_iso_floor', ['ELBOW_PREV'], [], 1, 'time', [], 'Triceps, grand dorsal, stabilisateurs du coude', ['Couché sur le ventre, un bras tendu sur le côté à 90° du corps (en T), paume au sol', 'Pousse la paume vers le sol, bras bien tendu, sans bouger', 'Par série : 3 poussées de 5 s, de 60 à 95 % de ton effort max, puis change de bras'], ['Plier le coude'], { side: true, burst: true, note: 'Protège le coude en position bras tendu, comme à la frappe.' });
   X('elbow_iso', 'Isométrie coude 90°', 'elbow_iso', ['ELBOW_PREV'], ['elastique|halteres'], 1, 'time', [], 'Biceps, brachial', ['Coude à 90°, au corps', 'Tiens contre la résistance', '70 % de ton effort max'], ['Laisser le coude partir en avant'], { note: '« Isom coude à maintenir » (programme long terme).' });
 
   // ===== Bras =====
@@ -236,6 +238,7 @@
   KP.EX_BY_ID = {};
   L.forEach(e => (KP.EX_BY_ID[e.id] = e));
   KP.animOf = ex => KP.ANIMS[ex.anim] || KP.ANIMS.other;
+  KP.hasView2 = ex => !!(ex && KP.ANIMS[ex.anim + '@2']);
 })(window.KP = window.KP || {});
 
 /* Charges de départ de référence (préparation 2023, profil moyen à haut). Niveau 3 = 120 %, 2 = 80 %, 1 = 60 %. */

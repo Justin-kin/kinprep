@@ -308,6 +308,35 @@
   // rotation externe couché sur le côté : vu de face, corps à l'horizontale sur le banc, avant-bras qui passe du ventre vers le plafond
   const erS = fa => P({ a: ['hip', 92, 97], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [-90, fa], af: [96, 176], p: [{ k: 'bench', x: 46, y: 104, w: 112 }, { k: 'db', j: 'hn' }] });
   A.ext_rot_side = an([erS(72), erS(172)], 1.4, 0.5);
+  // ---------- corrections du 11/11 ----------
+  // chaise : position fixe, bras croisés sur la poitrine
+  A.wall_sit = an([P({ a: ['hip', 72, 106], t: 180, ln: [90, 0, 90], lf: [90, 0, 90], an: [20, 112], af: [20, 112], p: [{ k: 'wall', x: 60, top: 15 }] })]);
+  // Y-T-W : vue de dessus (Y, T puis W) ; vue de côté en 2e vue
+  const top = (an, af, o = {}) => P(Object.assign({ v: 'front', a: ['hip', 100, 72], t: 180, hd: 180, ln: [6, 0, 180], lf: [-6, 0, 180], an, af, p: [{ k: 'label', x: 30, y: -16, txt: 'Vue de dessus' }] }, o));
+  A['ytw@2'] = A.ytw;
+  A.ytw = an([top([150, 150], [-150, -150]), top([90, 90], [-90, -90]), top([70, 160], [-70, -160])], 0.8, 0.7, 'loop');
+  // Copenhague : maintien (long : cheville sur le banc ; court : genou sur le banc)
+  A.copenhagen = an([cop(84, [-96, -96, 90])]);
+  const copS = t => P({ a: ['kn', 46, 98], o: [0, -5, 0, -6], t, hd: t + 2, ln: [t - 180, -90, -90], lf: [t - 140, 10, 90], an: [-60, -20], af: [0, 0], ik: { hf: [150, 137, 1] }, p: [{ k: 'bench', x: 8, y: 102, w: 50 }] });
+  A.copenhagen_short = an([copS(78)]);
+  // Pallof : vue de face, élastique accroché sur le côté ; vue de côté en 2e vue
+  const palF = (an, af) => P({ v: 'front', a: ['ff', 80, G], t: 180, ln: [16, 0, 90], lf: [-16, 0, -90], an, af, p: [{ k: 'band', from: 'hn', to: [186, 72] }, { k: 'wall', x: 188, top: 40 }] });
+  A['pallof@2'] = an([P({ a: ['fn', 100, G], t: 178, ln: [18, -12, 90], lf: [18, -12, 90], an: [10, 150], af: [10, 150] }), P({ a: ['fn', 100, G], t: 178, ln: [18, -12, 90], lf: [18, -12, 90], an: [92, 92], af: [92, 92] })], 1.0, 1.0);
+  A.pallof = an([palF([-20, -160], [20, 160]), palF([-28, -40], [28, 40])], 1.0, 1.0);
+  // isométrie bras tendu au sol : vue de dessus, un bras en T qui pousse vers le sol
+  A.elbow_iso_floor = an([top([90, 90], [-4, -4], { p: [{ k: 'label', x: 30, y: -16, txt: 'Vue de dessus' }] }), top([92, 92], [-4, -4], { p: [{ k: 'label', x: 10, y: -16, txt: 'Vue de dessus · paume poussée au sol' }] })], 0.6, 1.2);
+  // pont fessier avec haltère sur les hanches
+  A.bridge_db = an([sup2({ ik: feet(122), p: [{ k: 'db', j: 'hip' }] }), sup2({ t: -66, ik: feet(122), p: [{ k: 'db', j: 'hip' }] })]);
+  // frappe : vue de face en 2e vue
+  A['frappe_full@2'] = an([P({ v: 'front', a: ['ff', 84, G], t: 176, ln: [24, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [-110, -100] }), P({ v: 'front', a: ['ff', 84, G], t: 182, ln: [22, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [130, 140] }), P({ v: 'front', a: ['ff', 84, G], t: 178, ln: [22, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [30, 24] })], 0.3, 0.35, 'loop');
+  A['frappe_air@2'] = A['frappe_full@2'];
+  // 2e vues (exercices difficiles à lire sous un seul angle)
+  A['ext_rot_90@2'] = an([stand(100, { an: [90, 90], af: [-4, -2] }), stand(100, { an: [90, 180], af: [-4, -2] })], 1.0, 0.4);
+  A['face_pull@2'] = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [8, 0, 90], lf: [-8, 0, -90], an: [20, 30], af: [-20, -30] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [8, 0, 90], lf: [-8, 0, -90], an: [110, 200], af: [-110, -200] })]);
+  A['rot_band@2'] = an([fArm(110, { af: [-30, -20], an: [-60, -40], p: [{ k: 'band', from: 'hn', to: [14, 110] }, { k: 'wall', x: 14, top: 80 }] }), fHit(110, { an: [100, 100], af: [-30, -20], p: [{ k: 'band', from: 'hn', to: [14, 110] }, { k: 'wall', x: 14, top: 80 }] })], 0.35, 0.4);
+  A['rot_band_high@2'] = an([fArm(110, { p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] }), fHit(110, { an: [96, 96], p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] })], 0.35, 0.4);
+  A['rot_throw@2'] = an([fArm(100, { an: [-60, -40], af: [-50, -30], p: [{ k: 'ball', j: 'hn', o: [-4, 0] }] }), fHit(100, { an: [90, 90], af: [80, 80], p: [{ k: 'ball', j: 'hn', o: [8, 0] }] })], 0.35, 0.4);
+  A['rot_throw_diag@2'] = an([fArm(100, { an: [-40, -20], af: [-40, -20], p: [{ k: 'ball', j: 'hn', o: [-4, 4] }] }), fHit(100, { an: [140, 140], af: [130, 130], p: [{ k: 'ball', j: 'hn', o: [6, -6] }] })], 0.35, 0.4);
   A.pushup_plus = an([pu(112, 136, G), pu(115, 136, G)], 0.6, 0.3);
   A.hop_rot = A.lat_bound_rot;
 

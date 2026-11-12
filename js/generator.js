@@ -5,7 +5,18 @@
   // ---------------- prescriptions ----------------
   // kinds : main, sec, acc, prev, core, iso, ecc, plyo, power
   const P = (s, r, rpe, rest, t) => ({ s, r, rpe, rest, t });
+  // temps de repos (après la paire ou le bloc) : long seulement pour les séries lourdes, court pour le reste
   function presc(fam, kind, k, wtype, pid) {
+    const p = presc0(fam, kind, k, wtype, pid); if (!p) return p;
+    const heavy = p.rpe >= 8;
+    let rest = p.rest;
+    if (kind === 'main') rest = heavy ? p.rest : fam === 'ppg' || fam === 'trans' ? 45 : Math.min(p.rest, 90);
+    else if (kind === 'sec') rest = heavy ? p.rest : 45;
+    else if (['acc', 'prev', 'core'].includes(kind)) rest = 30;
+    else if (kind === 'iso') rest = 45;
+    return Object.assign({}, p, { rest });
+  }
+  function presc0(fam, kind, k, wtype, pid) {
     const light = wtype === 'deload' || wtype === 'light';
     if (fam === 'ppg') {
       const T = {
@@ -158,7 +169,7 @@
       if (!ok(ex)) ex = KP.EX_BY_ID[id];
       if (!ok(ex)) return;
       const t = ex.load === 'time' ? 30 : undefined;
-      items.push({ slot: 'SH-' + id, slotKey: sk, pri: 1, kind: 'prev', ex, p: { s: light ? 1 : 2, r: r + 2 * step, t, rpe: 6, rest: 20 }, note: ex.id === id ? note : '', pats: ['SCAP', 'SHOULDER_PREV'], fixed: true });
+      items.push({ slot: 'SH-' + id, slotKey: sk, pri: 1, kind: 'prev', ex, p: { s: light ? 1 : 2, r: r + 2 * step, t, rpe: 6, rest: 20 }, note: ex.id === 'ytw' ? '' : ex.id === id ? note : '', tempo: ex.tempo || '', pats: ['SCAP', 'SHOULDER_PREV'], fixed: true });
     });
     return items.length ? { grp: 'É', shoulder: true, items } : null;
   }
@@ -246,13 +257,22 @@
 
   // ---------------- durée estimée ----------------
   function itemWork(it) { const x = it.ex, p = it.p; const w = x.load === 'time' ? (p.t || 30) : (typeof p.r === 'number' ? p.r : 8) * (x.load === 'plyo' ? 2.5 : 3.5); return w * (x.uni || x.side ? 2 : 1); }
+  // durée réaliste d'une série : travail + 20 s (mise en place, saisie) par côté + 3 s de décompte si chrono + 5 s pour changer de côté
+  const SET_OVERHEAD = 20;
+  function setSec(it) { const two = it.ex.uni || it.ex.side; return itemWork(it) + SET_OVERHEAD * (two ? 2 : 1) + (two ? 5 : 0) + (it.ex.load === 'time' ? 3 * (two ? 2 : 1) : 0); }
   function blockSec(items, circuit) {
     if (!items.length) return 0;
     if (circuit) return items.reduce((a, it) => a + (it.p.t || 40) + 20, 0) * Math.max(...items.map(i => i.p.s));
     const rounds = Math.max(...items.map(i => i.p.s));
-    return items.reduce((a, it) => a + it.p.s * itemWork(it), 0) + rounds * Math.max(...items.map(i => i.p.rest)) * (items.length > 1 ? 0.8 : 1) + items.length * 20;
+    let t = 0;
+    for (let r = 1; r <= rounds; r++) {
+      const its = items.filter(i => i.p.s >= r);
+      t += its.reduce((a, it) => a + setSec(it), 0) + 15 * (its.length - 1) + its[its.length - 1].p.rest;
+    }
+    return t;
   }
-  function estMinutes(sess) { const s = sess.blocks.reduce((a, b) => a + blockSec(b.items, sess.circuit), 0) + (sess.warmup ? (sess.warmup.rounds || 2) * 4 * 60 : 0) + 60; return Math.max(15, Math.round(s / 300) * 5); }
+  function warmupSec(wu) { if (!wu) return 0; return (wu.rounds || 2) * wu.items.length * 60 + 3; }
+  function estMinutes(sess, pace) { const s = (sess.blocks.reduce((a, b) => a + blockSec(b.items, sess.circuit), 0) + warmupSec(sess.warmup) + 60) * (pace || 1); return Math.max(15, Math.round(s / 300) * 5); }
 
   // ---------------- échauffement ----------------
   const BAL = ['yeux ouverts', 'en tournant la tête', 'yeux fermés', 'petits sauts avec 1/4 de tour', 'petits sauts avec 1/2 tour'];
@@ -280,12 +300,15 @@
         if (slot.roles && !slot.roles.includes(ctx.role)) return;
         const sk = `${phase.id}|${key}|${slot.id}`;
         if (slot.alt && Math.abs(n) % 2 === 1) slot = Object.assign({}, slot, slot.alt);
-        if (phase.fam === 'puiss' && slot.pats.includes('ELBOW_PREV')) slot = Object.assign({}, slot, { pref: ['curl_iso', 'elbow_iso', 'wrist_ecc'] });
+        if (slot.pats.includes('ELBOW_PREV') && (['puiss', 'pic'].includes(tpl.fam || phase.fam) || C.clubActive(n))) slot = Object.assign({}, slot, { pref: ['elbow_iso_floor', 'wrist_ecc', 'elbow_iso'] });
         let ex = null;
         if (ov[sk] && KP.EX_BY_ID[ov[sk]]) { const o = KP.EX_BY_ID[ov[sk]]; if (feasible(o, ctx.eqs) && !o.zones.some(z => ctx.pain.has(z))) ex = o; }
         const avoid = (opts && opts.avoid) || new Set();
         if (!ex) { const own = e => e.pats.some(x => slot.pats.includes(x)) || ['ROLE', 'ROLE2'].includes(slot.pats[0]); ex = candidates(slot, ctx, e => !used.has(e.id) && !avoid.has(e.id) && own(e))[0] || candidates(slot, ctx, e => !used.has(e.id))[0]; }
         if (!ex) return;
+        // progression automatique décidée d'après les RPE notés (profil.prog : exercice → exercice suivant)
+        const prog = profile.prog || {}; let guardP = 0;
+        while (!(ov[sk]) && prog[ex.id] && guardP++ < 5) { const nx = KP.EX_BY_ID[prog[ex.id]]; if (!nx || used.has(nx.id) || !feasible(nx, ctx.eqs) || nx.zones.some(z => ctx.pain.has(z)) || ctx.bans.has(nx.id)) break; ex = nx; }
         used.add(ex.id);
         const p = Object.assign({}, presc(tpl.circuit ? 'trans' : tpl.fam || phase.fam, slot.kind, k, wtype, tpl.pid || phase.id));
         if (tpl.circuit) { p.s = 3; p.t = 40; p.rest = 20; }
@@ -294,7 +317,7 @@
         if (ex.load === 'time' && !p.t) p.t = slot.kind === 'plyo' ? 10 : slot.kind === 'ecc' ? 20 : 30;
         if (ex.load !== 'time' && slot.kind === 'iso') p.r = 6;
         if ((ex.load === 'pdc' || ex.load === 'band') && ['main', 'sec'].includes(slot.kind) && typeof p.r === 'number' && p.r < (ex.load === 'band' ? 8 : 6)) {
-          p.r = ex.load === 'band' ? 8 : 6; note = (note ? note + ' · ' : '') + 'Descente en 3 s, montée explosive';
+          p.r = ex.load === 'band' ? 8 : 6; var tempo0 = 'Descente 3 s, montée explosive';
         }
         if (ex.load === 'plyo' && typeof p.r === 'number' && p.r > 6) p.r = 5;
         if (ex.burst) { p.t = 15; note = (note ? note + ' · ' : '') + 'Par série : 3 contractions de 5 s, de 60 à 95 % de ton effort max'; }
@@ -303,7 +326,11 @@
           const tot = Math.min(25, 18 + 2 * k); // 2023 : de 18 à 25 au total, puis lesté
           note = (note ? note + ' · ' : '') + `Objectif ${tot} tractions au total : fais le maximum à chaque série. Au-delà de 25, passe aux tractions lestées (3 × 5).`;
         }
-        items.push({ slot: slot.id, slotKey: sk, pri: slot.pri, kind: slot.kind, ex, p, note, pats: slot.pats });
+        const fam0 = tpl.fam || phase.fam;
+        const tempo = ['plyo', 'power'].includes(slot.kind) ? 'Le plus vite possible à chaque répétition, récupération complète'
+          : slot.kind === 'main' && ['puiss', 'pic'].includes(fam0) ? 'Descente contrôlée, montée la plus rapide possible'
+          : (typeof tempo0 !== 'undefined' && tempo0) || ex.tempo || '';
+        items.push({ slot: slot.id, slotKey: sk, pri: slot.pri, kind: slot.kind, ex, p, note, tempo, pats: slot.pats });
       });
       if (items.length) blocks.push({ grp: String.fromCharCode(65 + blocks.length), items });
     });
@@ -432,7 +459,7 @@
     if (sess.kind === 'renfo') {
       const drop = mode === 'minimal' ? 2 : mode === 'allege' ? 3 : 99;
       sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < drop).map(i => !i.fixed && ((mode === 'allege' && !light && i.pri > 1) || mode === 'minimal') ? Object.assign({}, i, { p: Object.assign({}, i.p, { s: Math.max(Math.min(2, i.p.s), i.p.s - 1) }) }) : i) })).filter(b => b.items.length);
-      sess.min = estMinutes(sess);
+      sess.min = estMinutes(sess, sess.pace);
       let guard = 0;
       const dropPri = pr => { sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < pr) })).filter(b => b.items.length); };
       const cutSets = (min, keepMain) => sess.blocks.forEach(b => b.items.forEach(i => { if (!i.fixed && !(keepMain && i.kind === 'main' && i.pri === 1) && i.p.s > min) i.p = Object.assign({}, i.p, { s: i.p.s - 1 }); }));
@@ -442,7 +469,7 @@
       const shortRest = () => sess.blocks.forEach(b => b.items.forEach(i => { if (!i.fixed) i.p = Object.assign({}, i.p, { rest: Math.max(30, Math.round(i.p.rest * 0.6 / 15) * 15) }); }));
       const dropNonMust = () => { sess.blocks = sess.blocks.map(b => Object.assign({}, b, { items: b.items.filter(i => i.fixed || (i.pats || []).some(x => MUST.includes(x))) })).filter(b => b.items.length); };
       const steps = [() => dropPri(3), () => cutSets(3, true), () => cutSets(3), () => dropPri(2), () => cutSets(2), () => shoulder(1, 4), () => { if (sess.warmup) sess.warmup = Object.assign({}, sess.warmup, { rounds: 1, format: '1 tour de 40 s d\'effort / 20 s de repos (équilibre : 20 s par jambe)' }); }, shortRest, dropNonMust, () => shoulder(1, 2)];
-      while (maxMin && sess.min > maxMin && guard < steps.length) { steps[guard++](); sess.min = estMinutes(sess); }
+      while (maxMin && sess.min > maxMin && guard < steps.length) { steps[guard++](); sess.min = estMinutes(sess, sess.pace); }
       let gi = 0; sess.blocks.forEach(b => { if (!b.shoulder) b.grp = String.fromCharCode(65 + gi++); });
     } else if (sess.kind === 'cardio' && (mode === 'allege' || mode === 'minimal')) {
       // on garde toujours au moins 2 blocs d'intermittent : la qualité du travail compte plus que les minutes gagnées
@@ -507,7 +534,7 @@
     tplFor().forEach(([tk, ess], i) => {
       const key = 'R' + (i + 1);
       const s = buildRenfo(tk, key, n, profile, { lieu: lieux[key], avoid: usedWeek });
-      s.essential = ess; sess.push(s);
+      s.essential = ess; s.pace = Math.max(0.8, Math.min(1.4, +profile.paceK || 1)); sess.push(s);
       s.blocks.forEach(b => { if (!b.shoulder) b.items.forEach(it => { if (!(it.pats || []).includes('ELBOW_PREV')) usedWeek.add(it.ex.id); }); });
     });
     cardioSessions(n, profile).forEach(c => sess.push(c));
@@ -541,5 +568,5 @@
     return candidates(slot, ctx, f).slice(0, 4);
   }
 
-  KP.gen = { itemWork, buildWeek, buildRenfo, cardioSessions, alternatives, suggestLoad, weekLoad, MODES, eqSetOf, feasible, estMinutes, presc, TESTS, pace, e1rm, lastPerf, ROLE_DRILLS };
+  KP.gen = { itemWork, setSec, warmupSec, buildWeek, buildRenfo, cardioSessions, alternatives, suggestLoad, weekLoad, MODES, eqSetOf, feasible, estMinutes, presc, TESTS, pace, e1rm, lastPerf, ROLE_DRILLS };
 })(window.KP = window.KP || {});
