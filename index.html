@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
-<link rel="manifest" href="manifest.webmanifest?v=202611102015"><link rel="icon" type="image/png" href="icons/icon-192.png?v=202611102015"><link rel="apple-touch-icon" href="icons/icon-192.png?v=202611102015">
+<link rel="manifest" href="manifest.webmanifest?v=202611112313"><link rel="icon" type="image/png" href="icons/icon-192.png?v=202611112313"><link rel="apple-touch-icon" href="icons/icon-192.png?v=202611112313">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* Mise en page : application mobile en une colonne (max 560 px), en-tête de semaine collant, barre d'onglets en bas, séances en panneaux plein écran. */
@@ -161,7 +161,7 @@ textarea { min-height: 80px; resize: vertical; }
 .stepper input { width: 64px; border: 0; text-align: center; font: 700 20px/1 var(--display); padding: 0; background: transparent; }
 
 /* panneaux */
-.sheet-wrap { position: fixed; inset: 0; z-index: 50; background: rgba(10, 12, 16, .45); display: flex; align-items: flex-end; justify-content: center; animation: fade .18s ease; }
+.sheet-wrap { position: fixed; inset: 0; z-index: 70; background: rgba(10, 12, 16, .45); display: flex; align-items: flex-end; justify-content: center; animation: fade .18s ease; }
 .sheet { background: var(--bg); width: 100%; max-width: 560px; max-height: 92%; overflow: auto; border-radius: 20px 20px 0 0; padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); animation: up .22s ease; }
 .sheet .grab { width: 40px; height: 5px; border-radius: 3px; background: var(--line-strong); margin: 4px auto 12px; }
 .page { position: fixed; inset: 0; z-index: 40; background: var(--bg); overflow: auto; animation: up .2s ease; }
@@ -267,6 +267,9 @@ textarea { min-height: 80px; resize: vertical; }
 .seg-b span { position: relative; font: 700 10px/16px var(--body); color: var(--muted); padding-left: 4px; white-space: nowrap; }
 .seg-b.cur { outline: 2px solid var(--accent); outline-offset: 1px; }
 .seg-b i + span { mix-blend-mode: normal; }
+.tempo { background: var(--accent-soft); border-radius: 10px; padding: 7px 12px; font-size: 14px; }
+.rpe-txt { color: var(--muted); min-height: 18px; margin-top: 4px; }
+.stage .view-t { position: absolute; right: 8px; bottom: 8px; z-index: 2; padding: 6px 10px; font-size: 12px; }
 .howto { background: var(--surface); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .howto ol { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.3; }
 .player .stage { height: min(26vh, 240px); min-height: 130px; }
@@ -293,16 +296,17 @@ ul.cues { margin: 0; padding-left: 18px; display: flex; flex-direction: column; 
 </head>
 <body>
 <div id="app"></div>
-<script src="js/config.js?v=202611102015"></script>
-<script src="js/equipment.js?v=202611102015"></script>
-<script src="js/figure.js?v=202611102015"></script>
-<script src="js/anims.js?v=202611102015"></script>
-<script src="js/exercises.js?v=202611102015"></script>
-<script src="js/attention.js?v=202611102015"></script>
-<script src="js/calendar.js?v=202611102015"></script>
-<script src="js/generator.js?v=202611102015"></script>
-<script src="js/store.js?v=202611102015"></script>
-<script src="js/app.js?v=202611102015"></script>
+<script src="js/config.js?v=202611112313"></script>
+<script src="js/equipment.js?v=202611112313"></script>
+<script src="js/figure.js?v=202611112313"></script>
+<script src="js/anims.js?v=202611112313"></script>
+<script src="js/exercises.js?v=202611112313"></script>
+<script src="js/attention.js?v=202611112313"></script>
+<script src="js/clarity.js?v=202611112313"></script>
+<script src="js/calendar.js?v=202611112313"></script>
+<script src="js/generator.js?v=202611112313"></script>
+<script src="js/store.js?v=202611112313"></script>
+<script src="js/app.js?v=202611112313"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ r.update(); }).catch(function(){});</script>
 </body>
 </html>
