@@ -34,7 +34,7 @@
       // Force (comme 2023) : 4 × 10 → 4 × 8, RPE 6,5 → 8,5. Force 2 : on garde le volume puis 3 × 6 lourd (comme le Rappel Force 2023).
       if (pid === 'rappel') { const r = { main: P(3, 6, 8, 150), sec: P(3, 6, 8, 90) }[kind]; if (r) return r; }
       const M = pid === 'force2' ? [[4, 8, 7.5], [4, 8, 8], [4, 6, 8], [4, 6, 8], [3, 6, 8.5], [3, 6, 8.5], [3, 5, 8.5], [3, 5, 8.5]][Math.min(k, 7)]
-        : [[4, 10, 6.5], [4, 10, 7], [4, 10, 7.5], [4, 8, 7.5], [4, 8, 8], [4, 8, 8.5]][Math.min(k, 5)];
+        : [[4, 10, 6.5], [4, 10, 7], [4, 8, 7.5], [4, 6, 8], [4, 6, 8.5], [4, 6, 8.5]][Math.min(k, 5)]; // comme 2023 : 4 × 10 puis 4 × 6
       const S = pid === 'force2' ? [[3, 10, 7.5], [3, 10, 8], [3, 8, 8], [3, 8, 8], [3, 8, 8], [3, 6, 8.5], [3, 6, 8.5], [3, 6, 8.5]][Math.min(k, 7)]
         : [[3, 12, 7], [3, 12, 7], [3, 10, 7.5], [3, 10, 7.5], [3, 10, 8], [3, 8, 8]][Math.min(k, 5)];
       return {
@@ -44,8 +44,8 @@
       }[kind];
     }
     if (fam === 'puiss') {
-      if (light) return { main: P(3, 3, 7, 150), sec: P(2, 5, 7, 90), acc: P(2, 8, 6.5, 60), prev: P(2, 12, 6, 45, 30), core: P(2, 10, 6.5, 30, 30), iso: P(3, 1, 7, 60, 40), ecc: P(2, 4, 6.5, 90), plyo: P(3, 4, 7, 90), power: P(3, 4, 7, 90) }[kind];
-      const M = [[4, 5, 8], [4, 4, 8], [5, 3, 8.5], [5, 3, 8.5], [4, 3, 8.5]][Math.min(k, 4)];
+      if (light) return { main: P(2, 5, 7, 150), sec: P(2, 5, 7, 90), acc: P(2, 8, 6.5, 60), prev: P(2, 12, 6, 45, 30), core: P(2, 10, 6.5, 30, 30), iso: P(3, 1, 7, 60, 40), ecc: P(2, 4, 6.5, 90), plyo: P(3, 4, 7, 90), power: P(3, 4, 7, 90) }[kind];
+      const M = [[3, 6, 8], [3, 6, 8], [3, 5, 8.5], [3, 5, 8.5], [3, 5, 8.5]][Math.min(k, 4)]; // comme 2023 : 3 × 6 puis 3 × 5, lourd et en vitesse
       return {
         main: P(M[0], M[1], M[2], 180), sec: P(3, 6, 8, 90), acc: P(3, 8, 7.5, 60), prev: P(2, 12, 7, 45, 35),
         core: P(3, 8, 7.5, 30, 30), iso: P(3, 1, 7.5, 60, 45), ecc: P(2, 5, 7.5, 90),
@@ -54,10 +54,10 @@
     }
     if (fam === 'pic') {
       const W = {
-        up: { main: P(4, 3, 8.5, 180), sec: P(3, 5, 8, 90), plyo: P(4, 4, 8, 90), power: P(4, 4, 8, 90) },
-        taper: { main: P(2, 3, 8, 150), sec: P(2, 5, 7.5, 90), plyo: P(2, 4, 8, 90), power: P(2, 4, 8, 90) }, // affûtage : comme 2023, on garde charges et intensité, on passe à 2 séries
-        comp: { main: P(2, 3, 7, 150), sec: P(2, 4, 7, 90), plyo: P(2, 3, 7, 90), power: P(2, 3, 7, 90) },
-        maint: { main: P(3, 4, 8, 150), sec: P(3, 6, 7.5, 90), plyo: P(3, 5, 8, 90), power: P(3, 5, 8, 90) },
+        up: { main: P(3, 5, 8.5, 180), sec: P(3, 5, 8, 90), plyo: P(4, 4, 8, 90), power: P(4, 4, 8, 90) },
+        taper: { main: P(2, 5, 8, 150), sec: P(2, 5, 7.5, 90), plyo: P(2, 4, 8, 90), power: P(2, 4, 8, 90) }, // affûtage : comme 2023, on garde charges et intensité, on passe à 2 séries
+        comp: { main: P(2, 5, 7, 150), sec: P(2, 4, 7, 90), plyo: P(2, 3, 7, 90), power: P(2, 3, 7, 90) },
+        maint: { main: P(3, 5, 8, 150), sec: P(3, 6, 7.5, 90), plyo: P(3, 5, 8, 90), power: P(3, 5, 8, 90) },
         recup: { main: P(2, 8, 6, 60), sec: P(2, 10, 6, 60), plyo: P(2, 3, 6, 60), power: P(2, 5, 6, 60) },
       }[wtype] || {};
       const base = { acc: P(2, 8, 7, 60), prev: P(2, 10, 6.5, 45, 30), core: P(2, 8, 7, 30, 30), iso: P(3, 1, 7, 60, 40), ecc: P(2, 4, 7, 90) };
@@ -80,11 +80,11 @@
   const UNI = { pats: ['LEG_UNI'], pref: ['bulgarian_db', 'split_squat_db', 'bulgarian', 'split_squat'] };
   const T = {
     ppg_R1: { title: 'Renfo A · Essentiel', blocks: [
-      [S('A1', ['LEG_KNEE'], 'main', 1, { pref: ['goblet_kb', 'goblet_db', 'back_squat'], alt: UNI }), S('A2', ['PULL_H'], 'sec', 1, { pref: ['row_db', 'inverted_row', 'table_row'] })],
+      [S('A1', ['LEG_KNEE'], 'main', 1, { pref: ['goblet_kb', 'goblet_db', 'back_squat'], alt: UNI }), S('A2', ['PULL_H'], 'sec', 1, { pref: ['row_db', 'inverted_row', 'table_row'], per: [{ pri: 1, pats: ['PULL_V'], pref: ['pull_up_neg', 'chin_up', 'pull_up_band', 'lat_pull_band'] }] })],
       [S('B1', ['POWER_ROT'], 'power', 1, { pref: ROT }), S('B2', ['LEG_LAT'], 'sec', 1, { pref: ['lunge_lat_db', 'lunge_lat'] })],
       [S('C1', ['HAM_ECC'], 'ecc', 1, { pref: ['nordic', 'nordic_assist', 'ham_slide', 'ham_swiss'] }), S('C2', ['PUSH_H'], 'sec', 1, { pref: ['push_up', 'bench_db'] })],
-      [S('D1', ['ADD'], 'prev', 1, { pref: ['copenhagen_short', 'copenhagen', 'add_squeeze'] }), S('D2', ['CORE_ANTI'], 'core', 1, { pref: ['pallof', 'chop_ecc', 'dead_bug', 'plank'] })],
-      [EL('E1'), S('E2', ['LEG_HIP'], 'sec', 2, { pref: ['rdl_db', 'rdl_kb', 'sl_rdl_db', 'hip_thrust_db', 'bridge'] }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['calf_db', 'calf', 'peroneal'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
+      [S('D1', ['ADD'], 'prev', 1, { pref: ['copenhagen_short', 'copenhagen', 'add_squeeze'] }), S('D2', ['CORE_ANTI'], 'core', 1, { pref: ['pallof', 'dead_bug', 'plank'], per: [{ pri: 1, pats: ['CORE_ROT'], pref: ['landmine_rot', 'chop_ecc', 'rot_band_high', 'chop'] }] })],
+      [EL('E1'), S('E2', ['LEG_HIP'], 'sec', 2, { pref: ['rdl_db', 'rdl_kb', 'sl_rdl_db', 'hip_thrust_db', 'bridge'], per: [{ pri: 1, pats: ['POWER_DOWN', 'PEC_ADD'], kind: 'acc', pref: ['straight_pulldown', 'pullover', 'pec_iso'] }, { pri: 1, pats: ['ANKLE', 'CALF'], kind: 'prev', roles: ['pointe', 'ailier'], pref: ['peroneal', 'calf_sl', 'calf_db', 'calf', 'tibialis'], note: 'Cheville : stabilité et réactivité des appuis' }] }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['calf_db', 'calf', 'peroneal'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
     ] },
     ppg_R2: { title: 'Renfo B · Complément', blocks: [
       [S('A1', ['LEG_HIP'], 'main', 1, { pref: ['rdl_db', 'rdl_kb', 'sl_rdl_db', 'hip_thrust_db', 'bridge'] }), S('A2', ['PULL_V'], 'sec', 1, { pref: ['pull_up_neg', 'chin_up', 'lat_pull_band'] })],
@@ -94,11 +94,11 @@
       [S('E1', ['CORE_FLEX', 'CORE_ANTI'], 'core', 2, { pref: ['ab_wheel', 'hollow', 'curl_up', 'side_plank'] }), S('E2', ['ANKLE', 'CALF'], 'prev', 1, { pref: ['peroneal', 'tibialis', 'calf_db', 'toe_yoga'] }), EL('E3', 2)],
     ] },
     force_R1: { title: 'Force A · Essentiel', blocks: [
-      [S('A1', ['JUMP_V'], 'plyo', 2, { pref: ['cmj', 'box_jump', 'squat_jump'] })],
-      [S('B1', ['LEG_KNEE'], 'main', 1, { pref: ['back_squat', 'goblet_kb', 'squat_db', 'goblet_db'], alt: UNI }), S('B2', ['PULL_V'], 'main', 1, { pref: ['chin_up', 'pull_up', 'pull_up_band', 'lat_pull_band'] })],
+      [S('A1', ['JUMP_V'], 'plyo', 2, { pref: ['cmj', 'box_jump', 'squat_jump'], per: [{ pri: 1, pats: ['POWER_DOWN'], kind: 'power', pref: DOWN }, { pri: 1, pats: ['PEC_ADD'], kind: 'acc', pref: ['pullover', 'fly_db', 'pec_iso'] }] })],
+      [S('B1', ['LEG_KNEE'], 'main', 1, { pref: ['back_squat', 'goblet_kb', 'squat_db', 'goblet_db'], alt: UNI }), S('B2', ['PULL_V'], 'main', 1, { pref: ['chin_up', 'pull_up_band', 'pull_up_neg', 'lat_pull_band'], per: [{ pri: 1, pats: ['PULL_H'], pref: ['row_db', 'row_bar', 'inverted_row'] }] })],
       [S('C1', ['POWER_ROT'], 'power', 1, { pref: ROT }), S('C2', ['PUSH_H'], 'main', 1, { pref: ['bench_bar', 'bench_db', 'floor_press', 'push_up_lest', 'push_up'] })],
       [S('D1', ['LEG_LAT'], 'sec', 1, { pref: ['lunge_lat_db', 'lunge_lat'] }), S('D2', ['ADD'], 'prev', 1, { pref: ['copenhagen', 'copenhagen_short'] })],
-      [S('E1', ['HAM_ECC'], 'ecc', 1, { pref: ['nordic', 'nordic_assist', 'ham_slide'] }), EL('E2'), S('E3', ['CORE_ANTI'], 'core', 2, { pref: ['pallof', 'chop_ecc', 'side_plank', 'plank_reach'] }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['calf_sl', 'calf_db', 'peroneal'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
+      [S('E1', ['HAM_ECC'], 'ecc', 1, { pref: ['nordic', 'nordic_assist', 'ham_slide'] }), EL('E2'), S('E3', ['CORE_ANTI'], 'core', 2, { pref: ['pallof', 'side_plank', 'plank_reach'], per: [{ pri: 1, pats: ['CORE_ROT'], pref: ['landmine_rot', 'chop_ecc', 'rot_band_high', 'chop'] }, { pri: 1, pats: ['ANKLE', 'CALF'], kind: 'prev', roles: ['pointe', 'ailier'], pref: ['peroneal', 'calf_sl', 'calf_db', 'calf', 'tibialis'], note: 'Cheville : stabilité et réactivité des appuis' }] }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['calf_sl', 'calf_db', 'peroneal'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
     ] },
     force_R2: { title: 'Force B · Complément', blocks: [
       [S('A1', ['LEG_HIP'], 'main', 1, { pref: ['rdl_bar', 'sl_rdl_db', 'rdl_db', 'hip_thrust_bar', 'rdl_kb'] }), S('A2', ['PULL_H'], 'main', 1, { pref: ['row_db', 'row_bar', 'inverted_row'] })],
@@ -112,9 +112,9 @@
       [S('A1', ['POWER_ROT'], 'power', 1, { pref: ROT, note: 'En début de séance, quand tu es frais' })],
       [S('B1', ['LEG_KNEE'], 'main', 1, { pref: ['back_squat', 'squat_db', 'goblet_kb', 'goblet_db'], note: 'Charge lourde, remonte le plus vite possible' }), S('B2', ['JUMP_V'], 'plyo', 1, { pref: ['squat_jump', 'cmj', 'box_jump'], note: 'Contraste : enchaîne 20 s après l\'exercice chargé, le plus explosif possible' })],
       [S('C1', ['PUSH_H'], 'main', 1, { pref: ['bench_bar', 'bench_db', 'floor_press', 'push_up_lest', 'push_up'], note: 'Charge lourde, remonte le plus vite possible' }), S('C2', ['PUSH_PLYO'], 'plyo', 1, { pref: ['push_up_plyo', 'push_up_plyo_knee', 'chest_pass', 'push_up_plyo_inc'], note: 'Contraste : enchaîne 20 s après l\'exercice chargé, le plus explosif possible' })],
-      [S('D1', ['LEG_LAT'], 'main', 1, { pref: ['lunge_lat_db', 'lunge_lat'], note: 'Charge lourde, remonte le plus vite possible' }), S('D2', ['ROLE'], 'plyo', 1, { note: 'Contraste : enchaîne 20 s après l\'exercice chargé, le plus explosif possible' })],
+      [S('D1', ['LEG_LAT'], 'main', 1, { pref: ['lunge_lat_db', 'lunge_lat'], note: 'Charge lourde, remonte le plus vite possible' }), S('D2', ['ROLE'], 'plyo', 1, { note: 'Contraste : enchaîne 20 s après l\'exercice chargé, le plus explosif possible', per: [{ pri: 1, pats: ['ROLE2'] }] })],
       [S('E1', ['HAM_ECC'], 'ecc', 1, { pref: ['nordic', 'nordic_assist', 'ham_slide'] }), S('E2', ['ADD'], 'prev', 1, { pref: ['copenhagen', 'copenhagen_short'] }), EL('E3')],
-      [S('F1', ['PULL_V'], 'main', 2, { pref: ['chin_up', 'pull_up', 'pull_up_band', 'lat_pull_band'] }), S('F2', ['POWER_DOWN'], 'power', 2, { pref: DOWN }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['pogo', 'calf_sl'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
+      [S('F1', ['PULL_V'], 'main', 2, { pref: ['chin_up', 'pull_up_band', 'pull_up_neg', 'lat_pull_band'] }), S('F2', ['POWER_DOWN'], 'power', 2, { pref: DOWN, per: [{ pri: 1, pats: ['POWER_OLY'], pref: ['db_snatch', 'kb_swing'] }, { pri: 1, pats: ['ANKLE', 'CALF'], kind: 'prev', roles: ['pointe', 'ailier'], pref: ['peroneal', 'calf_sl', 'calf_db', 'calf', 'tibialis'], note: 'Cheville : stabilité et réactivité des appuis' }] }), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['pogo', 'calf_sl'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
     ] },
     puiss_R2: { title: 'Puissance B · Complément', blocks: [
       [S('A1', ['POWER_ROT'], 'power', 1, { pref: ROT2 })],
@@ -140,7 +140,7 @@
       [S('D1', ['HAM_ECC'], 'ecc', 1, { pref: ['nordic', 'nordic_assist', 'ham_slide'] }), EL('D2'), S('R1', ['ANKLE', 'CALF', 'POGO'], 'prev', 1, { roles: ['rapproche'], pref: ['calf_sl', 'pogo'], note: 'Rapproché : réactivité de la cheville pour les petits appuis' }), S('R2', ['HAM_ECC', 'LEG_HIP'], 'sec', 1, { roles: ['pointe'], pref: ['sl_rdl_db', 'ham_slide', 'sl_bridge', 'sl_rdl_pdc'], note: 'Pointe : chaîne arrière pour les démarrages' }), S('R3', ['ADD', 'LEG_LAT'], 'prev', 1, { roles: ['ailier'], pref: ['lateral_walk', 'add_squeeze', 'copenhagen_short', 'copenhagen'], note: 'Ailier : adducteurs et appuis latéraux' })],
     ] },
     rf_R2: { title: 'Rappel force B · Complément', fam: 'force', pid: 'rappel', blocks: [
-      [S('A1', ['PULL_V'], 'main', 1, { pref: ['chin_up', 'pull_up', 'pull_up_band', 'lat_pull_band'] }), S('A2', ['PULL_H'], 'main', 1, { pref: ['row_db', 'row_bar', 'inverted_row'] })],
+      [S('A1', ['PULL_V'], 'main', 1, { pref: ['chin_up', 'pull_up_band', 'pull_up_neg', 'lat_pull_band'] }), S('A2', ['PULL_H'], 'main', 1, { pref: ['row_db', 'row_bar', 'inverted_row'] })],
       [S('B1', ['ARMS'], 'acc', 2, { pref: ['triceps', 'curl', 'triceps_band'] }), S('B2', ['CALF', 'ANKLE'], 'prev', 1, { pref: ['calf_sl', 'peroneal', 'calf_db'] })],
       [S('C1', ['PROPRIO'], 'prev', 2, { pref: ['hop_balance', 'hop_rot', 'balance_reach'] })],
     ] },
@@ -157,7 +157,7 @@
   };
   // bloc épaule et omoplate (5-6 min, intégré à l'échauffement des séances de renfo)
   const SHOULDER = [['ytw', 6, 'Chaque lettre Y, T puis W'], ['pull_apart', 12, ''], ['ext_rot_90', 10, 'Élastique léger, retour en 2 s'], ['pushup_plus', 10, '']];
-  function shoulderBlock(ctx, light, n, ov) {
+  function shoulderBlock(ctx, light, n, ov, fam) {
     // progression toutes les 4 semaines (+2 répétitions par palier, 2 paliers max, repart à la reprise de juin)
     const step = n <= 0 ? 0 : Math.min(2, Math.floor(((n >= 25 ? n - 25 : n - 1)) / 4) % 3);
     const ok = e => e && feasible(e, ctx.eqs) && !e.zones.some(z => ctx.pain.has(z)) && !ctx.bans.has(e.id);
@@ -165,11 +165,14 @@
     SHOULDER.forEach(([id, r, note]) => {
       const sk = 'epaule|' + id;
       let ex = ov && ov[sk] && KP.EX_BY_ID[ov[sk]];
-      if (!ok(ex) && id === 'ext_rot_90' && ok(KP.EX_BY_ID.ext_rot_side)) ex = KP.EX_BY_ID.ext_rot_side;
+      // rotation d'épaule selon le bloc (programme 2023) : PPG = couché sur le flanc (endurance, 10 rép. légères),
+      // Force = assis coude sur le genou (force, 6 rép. plus chargées), Puissance / compétition = élastique bras à 90°
+      if (!ok(ex) && id === 'ext_rot_90') { const order = fam === 'ppg' ? ['ext_rot_side', 'ext_rot_knee'] : fam === 'force' ? ['ext_rot_knee', 'ext_rot_side'] : ['ext_rot_90', 'ext_rot_knee', 'ext_rot_side']; ex = order.map(x => KP.EX_BY_ID[x]).find(ok) || ex; }
       if (!ok(ex)) ex = KP.EX_BY_ID[id];
       if (!ok(ex)) return;
       const t = ex.load === 'time' ? 30 : undefined;
-      items.push({ slot: 'SH-' + id, slotKey: sk, pri: 1, kind: 'prev', ex, p: { s: light ? 1 : 2, r: r + 2 * step, t, rpe: 6, rest: 20 }, note: ex.id === 'ytw' ? '' : ex.id === id ? note : '', tempo: ex.tempo || '', pats: ['SCAP', 'SHOULDER_PREV'], fixed: true });
+      const re = ex.id === 'ext_rot_knee';
+      items.push({ slot: 'SH-' + id, slotKey: sk, pri: 1, kind: 'prev', ex, p: { s: light ? 1 : 2, r: re ? 6 : r + 2 * step, t, rpe: re ? 7.5 : 6, rest: re ? 45 : 20 }, note: ex.id === 'ytw' ? '' : ex.id === id ? note : '', tempo: ex.tempo || '', pats: ['SCAP', 'SHOULDER_PREV'], fixed: true });
     });
     return items.length ? { grp: 'É', shoulder: true, items } : null;
   }
@@ -300,15 +303,18 @@
         if (slot.roles && !slot.roles.includes(ctx.role)) return;
         const sk = `${phase.id}|${key}|${slot.id}`;
         if (slot.alt && Math.abs(n) % 2 === 1) slot = Object.assign({}, slot, slot.alt);
+        // per : contenu de la séance B qui passe dans la A par périodes de 2 semaines (pour qui ne fait que la A)
+        let sk2 = sk;
+        if (slot.per) { const v = slot.per.filter(x => !x.roles || x.roles.includes(ctx.role)), pi = Math.floor((n + 3) / 2) % (v.length + 1); if (pi > 0) { slot = Object.assign({}, slot, v[pi - 1], { roles: slot.roles, keep: true }); sk2 = sk + '~' + slot.pats[0]; } }
         if (slot.pats.includes('ELBOW_PREV') && (['puiss', 'pic'].includes(tpl.fam || phase.fam) || C.clubActive(n))) slot = Object.assign({}, slot, { pref: ['elbow_iso_floor', 'wrist_ecc', 'elbow_iso'] });
         let ex = null;
-        if (ov[sk] && KP.EX_BY_ID[ov[sk]]) { const o = KP.EX_BY_ID[ov[sk]]; if (feasible(o, ctx.eqs) && !o.zones.some(z => ctx.pain.has(z))) ex = o; }
+        if (ov[sk2] && KP.EX_BY_ID[ov[sk2]]) { const o = KP.EX_BY_ID[ov[sk2]]; if (feasible(o, ctx.eqs) && !o.zones.some(z => ctx.pain.has(z))) ex = o; }
         const avoid = (opts && opts.avoid) || new Set();
         if (!ex) { const own = e => e.pats.some(x => slot.pats.includes(x)) || ['ROLE', 'ROLE2'].includes(slot.pats[0]); ex = candidates(slot, ctx, e => !used.has(e.id) && !avoid.has(e.id) && own(e))[0] || candidates(slot, ctx, e => !used.has(e.id))[0]; }
         if (!ex) return;
         // progression automatique décidée d'après les RPE notés (profil.prog : exercice → exercice suivant)
         const prog = profile.prog || {}; let guardP = 0;
-        while (!(ov[sk]) && prog[ex.id] && guardP++ < 5) { const nx = KP.EX_BY_ID[prog[ex.id]]; if (!nx || used.has(nx.id) || !feasible(nx, ctx.eqs) || nx.zones.some(z => ctx.pain.has(z)) || ctx.bans.has(nx.id)) break; ex = nx; }
+        while (!(ov[sk2]) && prog[ex.id] && guardP++ < 5) { const nx = KP.EX_BY_ID[prog[ex.id]]; if (!nx || used.has(nx.id) || !feasible(nx, ctx.eqs) || nx.zones.some(z => ctx.pain.has(z)) || ctx.bans.has(nx.id)) break; ex = nx; }
         used.add(ex.id);
         const p = Object.assign({}, presc(tpl.circuit ? 'trans' : tpl.fam || phase.fam, slot.kind, k, wtype, tpl.pid || phase.id));
         if (tpl.circuit) { p.s = 3; p.t = 40; p.rest = 20; }
@@ -323,21 +329,23 @@
         if (ex.burst) { p.t = 15; note = (note ? note + ' · ' : '') + 'Par série : 3 contractions de 5 s, de 60 à 95 % de ton effort max'; }
         if (ex.side) note = (note ? note + ' · ' : '') + 'Même volume des deux côtés : alterne le côté de départ à chaque série';
         if (['chin_up', 'pull_up'].includes(ex.id) && ['force', 'puiss'].includes(phase.fam) && !['deload', 'taper', 'comp'].includes(wtype)) {
-          const tot = Math.min(25, 18 + 2 * k); // 2023 : de 18 à 25 au total, puis lesté
-          note = (note ? note + ' · ' : '') + `Objectif ${tot} tractions au total : fais le maximum à chaque série. Au-delà de 25, passe aux tractions lestées (3 × 5).`;
+          // 2023 : un total de tractions à atteindre (18 → 25), en 4 séries maximum, puis passage au lesté
+          const tot = Math.min(25, 18 + 2 * k);
+          p.total = tot; p.s = 4; p.r = Math.ceil(tot / 4);
+          note = (note ? note + ' · ' : '') + 'Fais le maximum de bonnes répétitions à chaque série. Quand tu fais 25 au total facilement, passe aux tractions lestées.';
         }
         const fam0 = tpl.fam || phase.fam;
         const tempo = ['plyo', 'power'].includes(slot.kind) ? 'Le plus vite possible à chaque répétition, récupération complète'
           : slot.kind === 'main' && ['puiss', 'pic'].includes(fam0) ? 'Descente contrôlée, montée la plus rapide possible'
           : (typeof tempo0 !== 'undefined' && tempo0) || ex.tempo || '';
-        items.push({ slot: slot.id, slotKey: sk, pri: slot.pri, kind: slot.kind, ex, p, note, tempo, pats: slot.pats });
+        items.push({ slot: slot.id, slotKey: sk2, pri: slot.pri, kind: slot.kind, ex, p, note, tempo, pats: slot.pats, keep: !!slot.keep });
       });
       if (items.length) blocks.push({ grp: String.fromCharCode(65 + blocks.length), items });
     });
-    if (!tpl.circuit && !tpl.noShoulder && (KP.CONFIG || {}).shoulderBlock !== false) { const sb = shoulderBlock(ctx, ['deload', 'taper', 'comp', 'recup'].includes(wtype), n, ov); if (sb) blocks.unshift(sb); }
+    if (!tpl.circuit && !tpl.noShoulder && (KP.CONFIG || {}).shoulderBlock !== false) { const sb = shoulderBlock(ctx, ['deload', 'taper', 'comp', 'recup'].includes(wtype), n, ov, tpl.fam || phase.fam); if (sb) blocks.unshift(sb); }
     const wu = warmup(ctx, tpl.fam || phase.fam, key, k);
     if (tpl.wuRounds) Object.assign(wu, { rounds: tpl.wuRounds, format: wu.format.replace('2 tours', '1 tour') });
-    return { key, kind: 'renfo', title: tpl.title, circuit: !!tpl.circuit, activ: tplKey === 'activ', lieu, blocks, warmup: wu };
+    return { key, n, kind: 'renfo', title: tpl.title, circuit: !!tpl.circuit, activ: tplKey === 'activ', lieu, blocks, warmup: wu };
   }
 
   // ---------------- cardio ----------------
@@ -370,9 +378,9 @@
   const CD = () => ({ label: 'Retour au calme 10\'', type: 'cd', min: 10, drills: [
     ['run', 'Footing très lent ou marche', '8 min'], ['leg_swing', 'Mobilité hanches', '10 balancés par jambe, avant-arrière et côté'], ['calf', 'Étirement mollets contre un mur', '30 s par jambe']].map(([id, t, v]) => ({ ex: KP.EX_BY_ID[id], t, v })).filter(d => d.ex) });
   const INTENSE = ['int', 'spr', 'rsa', 'role'];
-  const DEB = (n, m) => ({ label: `${n} déboulés de ${m} m`, type: 'deb', min: 3, detail: 'Au milieu de la sortie : accélération progressive jusqu\'à 80 %, puis reprise du footing.' });
+  const DEB = (n, m) => ({ label: `${n} déboulés de ${m} m`, type: 'deb', min: 0, detail: 'Pendant l\'endurance (compris dans sa durée) : accélération progressive jusqu\'à 80 %, puis reprise du footing.' });
 
-  const cardioMin = blocks => blocks.reduce((a, b) => a + (b.min || 0), 0) + (blocks.some(b => b.type === 'wu') ? 0 : 3);
+  const cardioMin = blocks => blocks.reduce((a, b) => a + (b.min || 0), 0); // la durée affichée = celle des blocs, déboulés compris dans l'endurance
   function cardioSessions(n, profile) {
     const { phase, wtype, wi, k } = C.phaseOf(n);
     const vma = +profile.vma || null, role = profile.role || 'pointe';
@@ -462,14 +470,34 @@
       sess.min = estMinutes(sess, sess.pace);
       let guard = 0;
       const dropPri = pr => { sess.blocks = sess.blocks.map(b => ({ grp: b.grp, shoulder: b.shoulder, items: b.items.filter(i => i.pri < pr) })).filter(b => b.items.length); };
-      const cutSets = (min, keepMain) => sess.blocks.forEach(b => b.items.forEach(i => { if (!i.fixed && !(keepMain && i.kind === 'main' && i.pri === 1) && i.p.s > min) i.p = Object.assign({}, i.p, { s: i.p.s - 1 }); }));
+      const cutSets = (min, keepMain) => sess.blocks.forEach(b => b.items.forEach(i => { if (!i.fixed && !(keepMain && i.kind === 'main' && i.pri === 1) && i.p.s > (i.kind === 'main' ? Math.max(3, min) : min)) i.p = Object.assign({}, i.p, { s: i.p.s - 1 }); }));
       // séances courtes (30-45 min) : on garde l'essentiel (frappe, jambes, appuis latéraux, Nordic, adducteurs, coude)
       const MUST = ['POWER_ROT', 'LEG_KNEE', 'LEG_UNI', 'LEG_LAT', 'HAM_ECC', 'ADD', 'ELBOW_PREV', 'ROLE', 'ROLE2'];
       const shoulder = (sets, keep) => sess.blocks.forEach(b => { if (b.shoulder) b.items = b.items.slice(0, keep).map(i => Object.assign({}, i, { p: Object.assign({}, i.p, { s: Math.min(sets, i.p.s) }) })); });
       const shortRest = () => sess.blocks.forEach(b => b.items.forEach(i => { if (!i.fixed) i.p = Object.assign({}, i.p, { rest: Math.max(30, Math.round(i.p.rest * 0.6 / 15) * 15) }); }));
-      const dropNonMust = () => { sess.blocks = sess.blocks.map(b => Object.assign({}, b, { items: b.items.filter(i => i.fixed || (i.pats || []).some(x => MUST.includes(x))) })).filter(b => b.items.length); };
-      const steps = [() => dropPri(3), () => cutSets(3, true), () => cutSets(3), () => dropPri(2), () => cutSets(2), () => shoulder(1, 4), () => { if (sess.warmup) sess.warmup = Object.assign({}, sess.warmup, { rounds: 1, format: '1 tour de 40 s d\'effort / 20 s de repos (équilibre : 20 s par jambe)' }); }, shortRest, dropNonMust, () => shoulder(1, 2)];
+      const dropNonMust = () => { sess.blocks = sess.blocks.map(b => Object.assign({}, b, { items: b.items.filter(i => i.fixed || i.keep || (i.pats || []).some(x => MUST.includes(x))) })).filter(b => b.items.length); };
+      const steps = [() => dropPri(3), () => shoulder(1, 4), () => dropPri(2), () => cutSets(3, true), () => cutSets(2, true), () => cutSets(3), () => cutSets(3), () => { if (sess.warmup) sess.warmup = Object.assign({}, sess.warmup, { rounds: 1, format: '1 tour de 40 s d\'effort / 20 s de repos (équilibre : 20 s par jambe)' }); }, shortRest, dropNonMust, () => shoulder(1, 2)]; // exercices principaux : jamais moins de 3 séries ; secondaires : jamais moins de 2
       while (maxMin && sess.min > maxMin && guard < steps.length) { steps[guard++](); sess.min = estMinutes(sess, sess.pace); }
+      // toujours trop long : on retire un exercice entier plutôt que de descendre sous 3 séries sur les principaux.
+      // D'abord le moins pertinent ; à pertinence égale, on tourne chaque semaine pour ne pas sacrifier toujours le même.
+      const RANK = { acc: 0, core: 0, iso: 0 }; // le reste (prévention, secondaires, Nordic, frappe, sauts) à égalité : on tourne
+      let drops = 0;
+      while (maxMin && sess.min > maxMin + 2 && drops < 2) {
+        const cand = []; sess.blocks.forEach(b => { if (!b.shoulder) b.items.forEach(i => { if (i.kind !== 'main' && !i.fixed) cand.push(i); }); });
+        if (!cand.length) break;
+        const lo = Math.min(...cand.map(i => RANK[i.kind] ?? 1)), pool = cand.filter(i => (RANK[i.kind] ?? 1) === lo);
+        const out = pool[(((sess.n || 0) + 3 * drops) % pool.length + pool.length) % pool.length];
+        sess.blocks = sess.blocks.map(b => Object.assign({}, b, { items: b.items.filter(i => i !== out) })).filter(b => b.items.length);
+        sess.dropped = (sess.dropped || []).concat(out.ex.n); drops++; sess.min = estMinutes(sess, sess.pace);
+      }
+      // en dernier recours seulement : 2 séries sur les principaux (une série en moins à la fois, en partant des plus longs)
+      let g2 = 0;
+      while (maxMin && sess.min > maxMin + 2 && g2++ < 6) {
+        const mains = []; sess.blocks.forEach(b => b.items.forEach(i => { if (i.kind === 'main' && !i.fixed && i.p.s > 2) mains.push(i); }));
+        if (!mains.length) break;
+        const i = mains.sort((x, y) => (setSec(y) + (y.p.rest || 0)) - (setSec(x) + (x.p.rest || 0)))[0];
+        i.p = Object.assign({}, i.p, { s: i.p.s - 1 }); sess.min = estMinutes(sess, sess.pace);
+      }
       let gi = 0; sess.blocks.forEach(b => { if (!b.shoulder) b.grp = String.fromCharCode(65 + gi++); });
     } else if (sess.kind === 'cardio' && (mode === 'allege' || mode === 'minimal')) {
       // on garde toujours au moins 2 blocs d'intermittent : la qualité du travail compte plus que les minutes gagnées

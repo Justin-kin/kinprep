@@ -28,7 +28,7 @@
   function save() { ST.save(); }
   function toast(t) { document.querySelectorAll('.toast').forEach(x => x.remove()); const el = document.createElement('div'); el.className = 'toast'; el.textContent = t; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
   const fmtRest = s => s >= 60 ? `${Math.floor(s / 60)}'${s % 60 ? String(s % 60).padStart(2, '0') : ''}` : `${s}"`;
-  const rxText = it => { const x = it.ex, p = it.p; const per = x.uni || x.side ? '/côté' : ''; const v = x.repsTxt || (x.id === 'ytw' ? `(${p.r} Y + ${p.r} T + ${p.r} W)` : x.load === 'time' ? `${p.t} s` : `${p.r}`); return `<b>${p.s} × ${v}</b>${x.repsTxt ? '' : per}${x.load !== 'time' && x.load !== 'plyo' ? ` · RPE cible ${String(p.rpe).replace('.', ',')}` : ''} · repos ${fmtRest(p.rest)}`; };
+  const rxText = it => { const x = it.ex, p = it.p; const per = x.uni || x.side ? '/côté' : ''; const v = p.total ? `${p.total} au total` : x.repsTxt || (x.id === 'ytw' ? `(${p.r} Y + ${p.r} T + ${p.r} W)` : x.load === 'time' ? `${p.t} s` : `${p.r}`); return p.total ? `<b>Objectif ${p.total} tractions au total</b> · 4 séries max · repos ${fmtRest(p.rest)}` : `<b>${p.s} × ${v}</b>${x.repsTxt ? '' : per}${x.load !== 'time' && x.load !== 'plyo' ? ` · RPE cible ${String(p.rpe).replace('.', ',')}` : ''} · repos ${fmtRest(p.rest)}`; };
   const figThumb = (exId) => `<div class="thumb" data-anim="${esc(exId)}"></div>`;
   function week(n) { const p = P(); return G.buildWeek(n, p, D().checkins[n] || {}, { lieux: st.lieux[n] || {} }); }
   const logOf = (n, key) => D().logs.find(l => l.week === n && l.key === key);
@@ -68,7 +68,9 @@
       const isToday = C.iso(date) === C.iso(today());
       const ev = w.load.events.filter(e => e.dow <= d && d < e.dow + e.days);
       const club = C.clubActive(n) && (p.clubDays || [1, 3]).includes(d) && (D().checkins[n] || {}).club !== 0;
-      const ss = w.sessions.filter(s => s.day === d);
+      // une séance faite apparaît le jour où elle a réellement été faite, sinon au jour conseillé
+      const dayOf = s => { const lg = logOf(n, s.key); if (lg && lg.date) { const k = Math.floor((new Date(isoDay(lg.date) + 'T12:00:00') - C.weekStart(n)) / C.DAY); if (k >= 0 && k < 7) return k; } return s.day; };
+      const ss = w.sessions.filter(s => dayOf(s) === d);
       return `<div class="day ${isToday ? 'today' : ''}"><span class="dn">${C.JOURS[d]}</span><span class="dd num">${date.getDate()}</span>
         ${ev.map(e => `<span class="tag ev ${e.type}" title="${esc(e.label)}">${esc(e.type === 'J' ? 'Match' : e.type === 'COMP' ? 'Compét.' : e.type === 'STAGE' ? 'Stage' : e.type === 'INFO' ? 'Event' : e.type)}</span>`).join('')}
         ${club ? '<span class="tag club">Club</span>' : ''}
@@ -429,6 +431,7 @@
     if (s.kind === 'renfo') {
       const p = P();
       body = `${meta}
+        ${s.dropped && s.dropped.length ? `<p class="small muted" style="margin:6px 0 0">Retiré cette semaine pour tenir dans ta durée maximale : ${esc(s.dropped.join(', '))}.</p>` : ''}
         ${p.salle ? `<div class="seg" role="group" aria-label="Lieu"><button class="${s.lieu !== 'salle' ? 'on' : ''}" data-a="lieu" data-v="maison">À la maison</button><button class="${s.lieu === 'salle' ? 'on' : ''}" data-a="lieu" data-v="salle">En salle</button></div>` : ''}
         <section class="blk"><div class="blk-h"><span class="g">0</span><h3 style="font-size:19px">Échauffement</h3><span class="small muted">${esc(s.warmup.format)}</span></div>
           <div class="wu">${s.warmup.items.map(x => `<button class="it" data-a="open-ex" data-id="${x.id}"><div data-anim="${x.id}"></div>${esc(x.n)}</button>`).join('')}</div></section>
@@ -525,7 +528,8 @@
       const s = curSess(), lg = logOf(st.page.n, s.key) || {};
       return `<h2 style="font-size:26px">Ton relevé</h2><form class="stack" style="margin-top:12px" data-f="cardiolog">
         <label class="f">Activité<select id="cl_mode">${[['course', 'Course à pied'], ['velo', 'Vélo'], ['rameur', 'Rameur'], ['natation', 'Natation'], ['squash', 'Squash'], ['autre', 'Autre sport']].map(([v, l]) => `<option value="${v}" ${(lg.mode || 'course') === v ? 'selected' : ''}>${l}</option>`).join('')}</select></label>
-        <div class="row" style="gap:10px"><label class="f grow">Durée (min)<input type="number" id="cl_dur" inputmode="numeric" required value="${lg.dur || s.min}"></label><label class="f grow">Distance (km)<input type="number" id="cl_km" step="0.01" inputmode="decimal" value="${lg.km || ''}"></label></div>
+        ${dateField('cl_date', lg)}
+        <div class="row" style="gap:10px"><label class="f grow">Durée (min)<input type="number" id="cl_dur" inputmode="numeric" required value="${lg.dur || ''}" placeholder="prévu : ${s.min}"></label><label class="f grow">Distance (km)<input type="number" id="cl_km" step="0.01" inputmode="decimal" value="${lg.km || ''}"></label></div>
         <div class="row" style="gap:10px"><label class="f grow">FC moyenne<input type="number" id="cl_fc" inputmode="numeric" value="${lg.fc || ''}"></label><label class="f grow">Dénivelé + (m)<input type="number" id="cl_dplus" inputmode="numeric" value="${lg.dplus || ''}"></label></div>
         <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Séance faite</span><div class="seg">${[['full', 'En entier'], ['part', 'En partie'], ['stop', 'Arrêtée']].map(([v, l]) => `<button type="button" class="${(lg.done || 'full') === v ? 'on' : ''}" data-a="cl-done" data-v="${v}">${l}</button>`).join('')}</div><input type="hidden" id="cl_done" value="${lg.done || 'full'}"></div>
         <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE), à choisir</span>${rpePicker('cl_rpe', lg.rpe || '', true)}${rpeHelp()}</div>
@@ -534,6 +538,7 @@
     if (sh.t === 'quicklog') {
       const s = curSess(), lg = logOf(st.page.n, s.key) || {};
       return `<h2 style="font-size:26px">Séance réalisée</h2><form class="stack" style="margin-top:12px" data-f="quicklog">
+        ${dateField('ql_date', lg)}
         <label class="f">Durée (min)<input type="number" id="ql_dur" inputmode="numeric" value="${lg.dur || s.min}"></label>
         <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté de la séance (RPE)</span>${rpePicker('ql_rpe', lg.rpe || '', true)}${rpeHelp()}</div>
         <button class="btn primary block" type="submit">Enregistrer</button>${lg.id ? `<button class="btn ghost block" type="button" data-a="dellog" data-v="${lg.id}">Supprimer ce relevé</button>` : ''}</form>`;
@@ -583,7 +588,7 @@
     const wr = s.warmup.rounds || 2;
     for (let r = 0; r < wr; r++) s.warmup.items.forEach(x => {
       const label = `Échauffement · tour ${r + 1}/${wr}`;
-      if (x.uni || x.side) { steps.push({ t: 'wu', ex: x, sec: 20, rest: 3, side: 'G', label }); steps.push({ t: 'wu', ex: x, sec: 20, rest: 20, side: 'D', label }); }
+      if (x.uni || x.side) { steps.push({ t: 'wu', ex: x, sec: 20, rest: 5, side: 'G', label }); steps.push({ t: 'wu', ex: x, sec: 20, rest: 20, side: 'D', label }); }
       else steps.push({ t: 'wu', ex: x, sec: 40, rest: 20, label });
     });
     s.blocks.forEach(b => {
@@ -646,6 +651,7 @@
     const pl = st.player, s = pl.sess;
     if (pl.mode === 'end') return `<div class="player-in"><div class="row"><h2 class="grow" style="font-size:28px">Séance terminée</h2></div>
       <div class="card"><div class="kv"><dt>Durée</dt><dd class="num">${Math.round((Date.now() - pl.t0) / 60000)} min</dd><dt>Séries notées</dt><dd class="num">${Object.values(pl.log).reduce((a, x) => a + x.sets.length, 0)}</dd></div></div>
+      ${dateField('pl_date', null)}
       <div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Difficulté globale de la séance (RPE 1 à 10)</span>${rpePicker('pl_rpe', pl.rpe || '', true)}${rpeHelp()}</div>
 
       <div class="grow"></div><button class="btn primary block" data-a="pl-save">Enregistrer la séance</button><button class="btn ghost block" data-a="pl-quit">Quitter sans enregistrer</button></div>`;
@@ -661,13 +667,13 @@
       return `<div class="player-in">${head}<div class="eyebrow" style="text-align:center;margin-top:10px">${sw ? 'Change de côté' : 'Récupération'}</div>
         <div style="display:grid;place-items:center">${ring(pl.remain, pl.restTot, 'rest')}</div>
         <div class="row" style="justify-content:center"><button class="btn sm ghost" data-a="pl-add">+15 s</button><button class="btn sm" data-a="pl-skip">Passer</button></div>
-        ${nxEx ? `<div class="card row" style="margin-top:auto"><div style="width:84px;height:72px" data-anim="${nxEx.id}"></div><div class="grow"><div class="eyebrow">Ensuite</div><div style="font-weight:700">${esc(nxEx.n)}</div><div class="small muted">${nx.t === 'set' ? `Série ${nx.set}/${nx.of}` : `${nx.sec} s`}${nx.side ? ' · ' + sideTxt(nx) : ''}</div></div></div>` : ''}</div>`;
+        ${nxEx ? `<div class="card row" style="margin-top:auto"><div style="width:84px;height:72px" data-anim="${nxEx.id}"></div><div class="grow"><div class="eyebrow">Ensuite</div><div style="font-weight:700">${esc(nxEx.n)}</div><div class="small muted">${nx.t === 'set' ? `Série ${nx.set}/${nx.of}` : `${nx.sec} s`}${nx.side ? ' · ' + sideTxt(nx) : ''}</div>${nx.t === 'set' ? nextLoad(pl, nx) : ''}</div></div>` : ''}</div>`;
     }
     if (st0.t === 'wu') return `<div class="player-in">${head}<div class="eyebrow">${st0.label}${st0.side ? ' · ' + sideTxt(st0) : ''}</div><h2 style="font-size:28px">${esc(st0.ex.n)}</h2>${st0.ex.mus ? `<div class="small muted">Muscles : ${esc(st0.ex.mus.charAt(0).toLowerCase() + st0.ex.mus.slice(1))}</div>` : ''}
       <div class="stage"><div data-anim="${st0.ex.id}" style="width:100%"></div></div>
       ${howTo(st0.ex, true)}
-      <div style="display:grid;place-items:center">${pl.prep ? prepRing(pl.remain) : ring(pl.remain || st0.sec, st0.sec, pl.timer ? 'work' : '')}</div>
-      ${pl.timer ? `<button class="btn block" data-a="pl-next">Passer</button>` : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Go ${st0.sec} s</button><button class="link" data-a="pl-skipwu" style="align-self:center">Passer l'échauffement</button>`}</div>`;
+      <div style="display:grid;place-items:center">${pl.prep ? prepRing(pl.remain) : ring(pl.timer ? pl.remain : st0.sec, st0.sec, pl.timer ? 'work' : '')}</div>
+      ${pl.timer ? `<button class="btn block" data-a="pl-next">Passer</button>` : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Go ${st0.sec} s</button>`}<button class="link" data-a="pl-skipwu" style="align-self:center">Passer l'échauffement</button></div>`;
     const it = st0.it, x = it.ex, p = it.p;
     const sug = G.suggestLoad(x, p, P(), D().logs);
     const prevSet = (pl.log[x.id] && pl.log[x.id].sets.slice(-1)[0]) || null;
@@ -679,15 +685,28 @@
       ${stageHTML(x)}
       ${it.tempo ? `<div class="tempo"><b>Rythme :</b> ${esc(it.tempo)}</div>` : ''}
       ${howTo(x)}
-      ${isTime ? `<div style="display:grid;place-items:center">${pl.prep ? prepRing(pl.remain) : ring(pl.remain || p.t, p.t, pl.timer ? 'work' : '')}</div><div class="small muted" style="text-align:center">${p.t} s${st0.side ? '' : per}${it.note ? ' · ' + esc(it.note) : ''}</div>
+      ${isTime ? `<div style="display:grid;place-items:center">${pl.prep ? prepRing(pl.remain) : x.burst && pl.burst ? burstRing(pl) : ring(pl.timer ? pl.remain : p.t, p.t, pl.timer ? 'work' : '')}</div><div class="small muted" style="text-align:center">${p.t} s${st0.side ? '' : per}${it.note ? ' · ' + esc(it.note) : ''}</div>
         ${pl.timer ? '' : `<button class="btn primary block" data-a="pl-go">${ic('play', 1)} Lancer ${p.t} s</button>`}
         ${x.load !== 'plyo' ? `<div class="f">${rpeLabel('RPE réel (après l\'effort)')}${rpePicker('pl_rpe_set', setOf(pl).rpe != null ? setOf(pl).rpe : '', true)}</div>` : ''}
         <button class="btn block ${pl.timer ? 'primary' : 'ghost'}" data-a="pl-done">Série terminée</button>`
-      : `<div class="row" style="align-items:flex-end"><div class="grow"><div class="big num">${x.repsTxt || x.id === 'ytw' ? `<span style="font-size:30px">${esc(x.repsTxt || `${p.r} Y · ${p.r} T · ${p.r} W`)}</span>` : `${p.r}<small> rép.${st0.side ? '' : per}</small>`}</div>${x.load !== 'plyo' ? `<div class="small muted">RPE cible ${String(p.rpe).replace('.', ',')}${it.note ? ' · ' + esc(it.note) : ''}</div>` : `<div class="small muted">Qualité maximale${it.note ? ' · ' + esc(it.note) : ''}</div>`}</div></div>
-      <div class="row" style="gap:8px"><div class="f grow"><span class="small" style="font-weight:600;color:var(--muted)">Répétitions faites</span>${stepper('pl_r', setOf(pl).r != null ? setOf(pl).r : p.r, 1)}</div>
-        ${x.load === 'kg' || x.load === 'lest' ? `<div class="f grow"><span class="small" style="font-weight:600;color:var(--muted)">${x.load === 'lest' ? 'Lest (kg)' : 'Charge (kg)'}</span>${stepper('pl_kg', kg === '' ? (x.load === 'lest' ? 0 : '') : kg, x.eq.some(r => r.includes('barre')) ? 2.5 : 1)}</div>` : ''}</div>
+      : `<div class="row" style="align-items:flex-end"><div class="grow"><div class="big num">${p.total ? `<span style="font-size:30px">Max · total ${pullTot(pl, x)} / ${p.total}</span>` : x.repsTxt || x.id === 'ytw' ? `<span style="font-size:30px">${esc(x.repsTxt || `${p.r} Y · ${p.r} T · ${p.r} W`)}</span>` : `${p.r}<small> rép.${st0.side ? '' : per}</small>`}</div>${x.load !== 'plyo' ? `<div class="small muted">RPE cible ${String(p.rpe).replace('.', ',')}${it.note ? ' · ' + esc(it.note) : ''}</div>` : `<div class="small muted">Qualité maximale${it.note ? ' · ' + esc(it.note) : ''}</div>`}</div></div>
+      <div class="row" style="gap:8px">${x.repsTxt ? '' : `<div class="f grow"><span class="small" style="font-weight:600;color:var(--muted)">Répétitions faites</span>${stepper('pl_r', setOf(pl).r != null ? setOf(pl).r : p.total ? '' : p.r, 1)}</div>`}
+        ${x.load === 'kg' || x.load === 'lest' ? `<div class="f grow"><span class="small" style="font-weight:600;color:var(--muted)">${x.load === 'lest' ? 'Lest (kg)' : 'Charge (kg)'}</span>${stepper('pl_kg', setOf(pl).kg != null ? setOf(pl).kg : kg === '' ? (x.load === 'lest' ? 0 : '') : kg, x.eq.some(r => r.includes('barre')) ? 2.5 : 1)}</div>` : ''}</div>
+      ${x.load === 'kg' || x.load === 'lest' ? '<div class="small muted">Trop lourd ou trop léger ? Change la charge ici : les séries suivantes repartent de cette valeur.</div>' : ''}
+      ${x.load === 'band' ? `<div class="f"><span class="small" style="font-weight:600;color:var(--muted)">Élastique utilisé (change-le si c'est trop dur)</span><div class="seg">${BANDS.map(([v, l]) => `<button type="button" class="${(setOf(pl).band || bandOf(pl, x)) === v ? 'on' : ''}" data-a="band" data-v="${v}">${l}</button>`).join('')}</div><input type="hidden" id="pl_band" value="${setOf(pl).band || bandOf(pl, x)}"></div>` : ''}
       ${x.load !== 'plyo' ? `<div class="f">${rpeLabel('RPE réel de cette série (après l\'effort)')}${rpePicker('pl_rpe_set', setOf(pl).rpe != null ? setOf(pl).rpe : prevSet ? prevSet.rpe : p.rpe)}</div>` : ''}
       <button class="btn primary block" data-a="pl-done">${ic('check')} Série terminée</button>`}</div>`;
+  }
+  const BANDS = [['1', 'Léger'], ['2', 'Moyen'], ['3', 'Fort'], ['4', 'Très fort']];
+  // élastique : on reprend celui de la série précédente, sinon celui de la dernière séance
+  function bandOf(pl, x) { const e = pl.log[x.id]; const last = e && e.sets.filter(z => z.band).slice(-1)[0]; if (last) return last.band; for (let i = D().logs.length - 1; i >= 0; i--) { const q = D().logs[i].ex && D().logs[i].ex[x.id]; const z = q && q.sets && q.sets.filter(y => y.band).slice(-1)[0]; if (z) return z.band; } return '2'; }
+  const pullTot = (pl, x) => ((pl.log[x.id] || {}).sets || []).filter(z => z.st !== pl.i).reduce((a, z) => a + (+z.r || 0), 0);
+  // charge à préparer pour l'exercice suivant (dernière série notée, sinon charge conseillée, sinon élastique)
+  function nextLoad(pl, nx) {
+    const x = nx.it.ex, e = pl.log[x.id], last = e && e.sets.slice(-1)[0];
+    if (x.load === 'kg' || x.load === 'lest') { const kg = last && last.kg != null ? last.kg : (G.suggestLoad(x, nx.it.p, P(), D().logs) || {}).kg; return kg != null && kg !== '' ? `<div style="font:700 18px/1.2 var(--display);margin-top:2px">Prépare ${kg} kg${x.load === 'lest' ? ' de lest' : ''}</div>` : ''; }
+    if (x.load === 'band') { const b = (BANDS.find(z => z[0] === bandOf(pl, x)) || [])[1]; return b ? `<div style="font:700 18px/1.2 var(--display);margin-top:2px">Élastique ${b.toLowerCase()}</div>` : ''; }
+    return '';
   }
   const setOf = pl => { const s0 = pl.steps[pl.i]; const e = s0 && s0.it && pl.log[s0.it.ex.id]; return (e && e.sets.find(z => z.st === pl.i)) || {}; };
   const rpeLabel = l => `<span class="row small" style="font-weight:600;color:var(--muted);gap:6px">${l}<button type="button" class="link small" data-a="rpe-help" aria-label="Aide sur le RPE">${ic('info')} ?</button></span>`;
@@ -711,7 +730,8 @@
       const ring = document.querySelector('.player .ring'); if (ring) ring.outerHTML = ring_(pl, mode);
     }, 250);
   }
-  const ring_ = (pl, mode) => pl.prep ? prepRing(pl.remain) : ring(pl.remain, pl.restTot, pl.mode === 'rest' ? 'rest' : 'work');
+  const ring_ = (pl, mode) => pl.prep ? prepRing(pl.remain) : pl.burst && pl.mode !== 'rest' ? burstRing(pl) : ring(pl.remain, pl.restTot, pl.mode === 'rest' ? 'rest' : 'work');
+  const burstRing = pl => `<svg class="ring" viewBox="0 0 210 210"><circle class="bg" cx="105" cy="105" r="92"/><text x="105" y="88" text-anchor="middle" font-size="22" font-weight="700" fill="var(--muted)">${pl.relax ? 'Relâche' : `Poussée ${pl.burst}/3`}</text><text x="105" y="145" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="64" fill="${pl.relax ? 'var(--ok)' : 'var(--crit)'}">${Math.max(1, Math.ceil(pl.remain))}</text></svg>`;
   const prepRing = r => `<svg class="ring" viewBox="0 0 210 210"><circle class="bg" cx="105" cy="105" r="92"/><text x="105" y="92" text-anchor="middle" font-size="22" font-weight="700" fill="var(--muted)">Mise en place</text><text x="105" y="145" text-anchor="middle" font-family="Barlow Condensed, sans-serif" font-weight="700" font-size="64" fill="var(--accent)">${Math.max(1, Math.ceil(r))}</text></svg>`;
   function recordSet() {
     const pl = st.player, s0 = pl.steps[pl.i]; if (s0.t !== 'set') return;
@@ -719,29 +739,40 @@
     const e = pl.log[x.id] = pl.log[x.id] || { sets: [] };
     const rec = { r: x.load === 'time' ? s0.it.p.t : +gv('pl_r') || s0.it.p.r, kg: gv('pl_kg') !== null && gv('pl_kg') !== '' ? +gv('pl_kg') : null, rpe: gv('pl_rpe_set') ? +gv('pl_rpe_set') : null, tg: s0.it.p.rpe, st: pl.i };
     if (s0.side) rec.side = s0.side;
+    if (gv('pl_band')) rec.band = gv('pl_band');
     const k = e.sets.findIndex(z => z.st === pl.i); if (k >= 0) e.sets[k] = rec; else e.sets.push(rec);
+    if (s0.it.p.total && e.sets.reduce((a, z) => a + (+z.r || 0), 0) >= s0.it.p.total) { pl.steps = pl.steps.filter((z, j) => j <= pl.i || z.it !== s0.it); toast(`Objectif atteint : ${s0.it.p.total} tractions`); }
   }
   function nextStep() {
     const pl = st.player; clearInterval(pl.timer); pl.timer = null;
     setTimeout(saveDraft, 0);
     const cur = pl.steps[pl.i];
     if (pl.i >= pl.steps.length - 1) { pl.mode = 'end'; wake(false); render(); return; }
-    if (pl.mode === 'work' && cur.rest) { pl.mode = 'rest'; pl.remain = pl.restTot = cur.rest; render(); countdown(cur.rest, () => { pl.mode = 'work'; pl.i++; autoWu(); render(); }, 'rest'); return; }
-    pl.mode = 'work'; pl.i++; autoWu(); render();
+    pl.burst = 0;
+    if (pl.mode === 'work' && cur.rest) { pl.mode = 'rest'; pl.remain = pl.restTot = cur.rest; render(); countdown(cur.rest, () => { pl.mode = 'work'; pl.remain = 0; pl.i++; autoWu(); render(); }, 'rest'); return; }
+    pl.mode = 'work'; pl.remain = 0; pl.i++; autoWu(); render();
   }
   // chrono d'un exercice : 3 s de mise en place (décompte avec bips), puis l'effort
-  function goTimed() {
+  function goTimed(manual) {
     const pl = st.player, s0 = pl.steps[pl.i]; if (!s0) return;
     const sec = s0.t === 'wu' ? s0.sec : s0.it.p.t;
-    pl.prep = 1; render();
     // série chronométrée : à la fin, on reste sur l'écran pour noter le RPE, puis « Série terminée »
-    countdown(3, () => { pl.prep = 0; countdown(sec, () => { if (s0.t === 'wu') nextStep(); else { pl.remain = 0; render(); toast('Temps écoulé : note ton RPE'); } }, 'work'); render(); }, 'work');
+    const finish = () => { if (s0.t === 'wu') nextStep(); else { pl.remain = 0; pl.burst = 0; render(); toast('Temps écoulé : note ton RPE'); } };
+    const run = () => {
+      pl.prep = 0;
+      if (s0.t === 'set' && s0.it.ex.burst) { // 3 poussées de 5 s séparées de 3 s de relâche
+        let k = 0; const push = () => { k++; pl.burst = k; pl.relax = 0; countdown(5, () => { if (k >= 3) return finish(); pl.relax = 1; render(); countdown(3, push, 'work'); render(); }, 'work'); render(); };
+        return push();
+      }
+      countdown(sec, finish, 'work'); render();
+    };
+    if (manual) { pl.prep = 1; render(); countdown(3, run, 'work'); } else run();
   }
   // l'échauffement s'enchaîne seul ; le 2e côté d'un exercice chronométré démarre aussi seul
   function autoWu() {
     const pl = st.player, s = pl.steps[pl.i], prev = pl.steps[pl.i - 1];
     const autoSide = s && s.t === 'set' && s.side && s.it.ex.load === 'time' && prev && prev.it === s.it;
-    if (s && ((s.t === 'wu' && pl.i > 0) || autoSide)) { pl.remain = s.t === 'wu' ? s.sec : s.it.p.t; setTimeout(() => { if (st.player && st.player.steps[st.player.i] === s && !st.player.timer) goTimed(); }, 50); }
+    if (s && ((s.t === 'wu' && pl.i > 0) || autoSide)) { pl.remain = s.t === 'wu' ? s.sec : s.it.p.t; setTimeout(() => { if (st.player && st.player.steps[st.player.i] === s && !st.player.timer) goTimed(false); }, 50); }
   }
 
   // ---------- minuteur global (repos, intervalles, chrono) ----------
@@ -892,6 +923,13 @@
     if (out.length) { save(); ST.sync({ t: 'profile' }); }
     return out;
   }
+  // date réelle de la séance : par défaut aujourd'hui, modifiable (de la semaine précédente jusqu'à aujourd'hui)
+  const isoDay = d => { const z = new Date(d); return `${z.getFullYear()}-${String(z.getMonth() + 1).padStart(2, '0')}-${String(z.getDate()).padStart(2, '0')}`; };
+  function dateField(id, lg) {
+    const n = st.page ? st.page.n : curWeek(), min = isoDay(C.weekStart(n).getTime() - 7 * 864e5), today = isoDay(Date.now());
+    return `<label class="f">Jour où tu l'as faite<input type="date" id="${id}" value="${lg && lg.date ? isoDay(lg.date) : today}" min="${min}" max="${today}"></label>`;
+  }
+  function readDate(id) { const el = document.getElementById(id); const v = el && el.value; if (!v || v === isoDay(Date.now())) return new Date().toISOString(); return new Date(v + 'T12:00:00').toISOString(); }
   function upsertLog(l) {
     const L = D().logs, i = L.findIndex(x => x.week === l.week && x.key === l.key);
     if (i >= 0) { l.id = L[i].id; L[i] = Object.assign({}, L[i], l); } else { l.id = l.id || ST.uid(); L.push(l); }
@@ -971,20 +1009,21 @@
     'pl-later': () => { saveDraft(); st.player = null; wake(false); render(); toast('Séance gardée : tu pourras la reprendre'); },
     'pl-finish': () => { const pl = st.player; pl.early = true; pl.mode = 'end'; wake(false); render(); },
     'pl-abandon': () => { const pl = st.player; dropDraft(pl.n, pl.sess.key); st.player = null; wake(false); render(); },
-    'pl-go': () => { goTimed(); },
-    'pl-prev': () => { const pl = st.player; if (pl.i <= 0) return; clearInterval(pl.timer); pl.timer = null; pl.prep = 0; pl.mode = 'work'; pl.i--; render(); },
+    'pl-go': () => { goTimed(true); },
+    'pl-prev': () => { const pl = st.player; if (pl.i <= 0) return; clearInterval(pl.timer); pl.timer = null; pl.prep = 0; pl.remain = 0; pl.burst = 0; pl.mode = 'work'; pl.i--; render(); },
+    band: (el, v) => { document.getElementById('pl_band').value = v; el.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === el)); },
     view2: () => { st.view2 = !st.view2; render(); renderOverlays(); },
     'rpe-help': () => { st.sheet = { t: 'rpehelp' }; renderOverlays(); },
     'pl-next': () => nextStep(),
     'pl-skipwu': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.i = pl.steps.findIndex(x => x.t !== 'wu'); pl.paceFrom = { i: pl.i, t: Date.now() }; pl.mode = 'work'; render(); },
     'pl-done': () => { recordSet(); nextStep(); },
-    'pl-add': () => { const pl = st.player; const rem = pl.remain + 15; countdown(rem, () => { pl.mode = 'work'; pl.i++; autoWu(); render(); }, 'rest'); pl.restTot = Math.max(pl.restTot, rem); },
-    'pl-skip': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.mode = 'work'; pl.i++; autoWu(); render(); },
+    'pl-add': () => { const pl = st.player; const rem = pl.remain + 15; countdown(rem, () => { pl.mode = 'work'; pl.remain = 0; pl.i++; autoWu(); render(); }, 'rest'); pl.restTot = Math.max(pl.restTot, rem); },
+    'pl-skip': () => { const pl = st.player; clearInterval(pl.timer); pl.timer = null; pl.remain = 0; pl.burst = 0; pl.mode = 'work'; pl.i++; autoWu(); render(); },
     'pl-info': el => { st.sheet = { t: 'ex', id: el.dataset.id }; renderOverlays(); },
     'pl-save': () => {
       const pl = st.player, s = pl.sess;
       if (!document.getElementById('pl_rpe').value) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
-      upsertLog({ week: st.page.n, key: s.key, kind: 'renfo', title: s.title, date: new Date().toISOString(), dur: Math.max(1, Math.round((Date.now() - pl.t0) / 60000)), rpe: +document.getElementById('pl_rpe').value, ex: pl.log, lieu: s.lieu }); cardioAdapt();
+      upsertLog({ week: st.page.n, key: s.key, kind: 'renfo', title: s.title, date: readDate('pl_date'), dur: Math.max(1, Math.round((Date.now() - pl.t0) / 60000)), rpe: +document.getElementById('pl_rpe').value, ex: pl.log, lieu: s.lieu }); cardioAdapt();
       // durée réelle → corrige les estimations de ce joueur (séance complète seulement)
       const mins = (Date.now() - pl.t0) / 60000, base = s.min / (s.pace || 1);
       if (!pl.early && base > 10 && mins > base * 0.5 && mins < base * 2) { const P0 = P(); P0.paceK = Math.round((0.6 * (+P0.paceK || 1) + 0.4 * (mins / base)) * 100) / 100; save(); ST.sync({ t: 'profile' }); }
@@ -1070,13 +1109,13 @@
     if (kind === 'cardiolog') {
       const s = curSess(), g = id => document.getElementById(id).value;
       if (!g('cl_rpe')) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
-      upsertLog({ int: s.blocks.some(b => b.type === 'int'), ef: s.blocks.every(b => ['ef', 'wu', 'cd', 'deb'].includes(b.type)), done: g('cl_done'), week: st.page.n, key: s.key, kind: 'cardio', title: s.title, date: new Date().toISOString(), mode: g('cl_mode'), dur: +g('cl_dur'), km: g('cl_km') ? +String(g('cl_km')).replace(',', '.') : null, fc: g('cl_fc') ? +g('cl_fc') : null, dplus: g('cl_dplus') ? +g('cl_dplus') : null, rpe: +g('cl_rpe') });
+      upsertLog({ int: s.blocks.some(b => b.type === 'int'), ef: s.blocks.every(b => ['ef', 'wu', 'cd', 'deb'].includes(b.type)), done: g('cl_done'), week: st.page.n, key: s.key, kind: 'cardio', title: s.title, date: readDate('cl_date'), mode: g('cl_mode'), dur: +g('cl_dur'), km: g('cl_km') ? +String(g('cl_km')).replace(',', '.') : null, fc: g('cl_fc') ? +g('cl_fc') : null, dplus: g('cl_dplus') ? +g('cl_dplus') : null, rpe: +g('cl_rpe') });
       const ad = cardioAdapt(); st.sheet = null; st.page = null; toast(ad || 'Séance enregistrée'); render(); return;
     }
     if (kind === 'quicklog') {
       const s = curSess(), g = id => document.getElementById(id).value;
       if (!g('ql_rpe')) { toast('Choisis ta difficulté (RPE) de 1 à 10'); return; }
-      upsertLog({ week: st.page.n, key: s.key, kind: s.kind, title: s.title, date: new Date().toISOString(), dur: +g('ql_dur'), rpe: +g('ql_rpe') });
+      upsertLog({ week: st.page.n, key: s.key, kind: s.kind, title: s.title, date: readDate('ql_date'), dur: +g('ql_dur'), rpe: +g('ql_rpe') });
       cardioAdapt(); st.sheet = null; st.page = null; toast('Séance enregistrée'); render(); return;
     }
     if (kind === 'auth') {
@@ -1110,7 +1149,36 @@
   // ---------- démarrage ----------
   try { const t = localStorage.getItem('kinprep.theme'); if (t) document.documentElement.dataset.theme = t; } catch (e) { /* */ }
   if (!P() && KP.CONFIG.demo) { D().profile = SAMPLE(); save(); }
+  // ---------- synchronisation descendante : récupère ce qui a été fait sur un autre appareil ----------
+  let lastDown = 0;
+  async function syncDown(force) {
+    if (!SB.enabled() || !SB.user() || !navigator.onLine || !P() || P().demo) return;
+    if (!force && Date.now() - lastDown < 30000) return;
+    lastDown = Date.now();
+    try {
+      await ST.flush(); // d'abord envoyer ce qui attend sur cet appareil
+      const q = D().queue || [];
+      const pendLog = new Set(q.filter(j => j.t === 'log').map(j => j.id)), pendDel = new Set(q.filter(j => j.t === 'dellog').map(j => j.id));
+      const pendCi = new Set(q.filter(j => j.t === 'checkin').map(j => +j.week)), pendProf = q.some(j => j.t === 'profile');
+      const r = await SB.pull(); if (!r) return;
+      const before = JSON.stringify([D().logs.map(l => l.id + (l.date || '')), D().checkins]);
+      // séances : la base fait foi, sauf ce qui attend encore d'être envoyé depuis cet appareil
+      const remote = (r.logs || []).filter(l => l && l.id && !pendDel.has(l.id));
+      const local = D().logs.filter(l => pendLog.has(l.id));
+      D().logs = remote.filter(l => !pendLog.has(l.id)).concat(local);
+      const ci = Object.assign({}, r.checkins || {}); pendCi.forEach(w => { if (D().checkins[w]) ci[w] = D().checkins[w]; }); D().checkins = ci;
+      // profil : on prend celui de la base s'il est plus récent
+      const rp = r.profile, rAt = rp && rp.updated_at ? new Date(rp.updated_at).getTime() : 0;
+      let profChanged = false;
+      if (rp && rp.data && rp.data.role && !pendProf && rAt > (D().profileAt || 0) + 1000 && !st.pfDirty) { D().profile = Object.assign({}, rp.data); D().profileAt = rAt; profChanged = true; }
+      save();
+      if (profChanged || before !== JSON.stringify([D().logs.map(l => l.id + (l.date || '')), D().checkins])) { if (!st.player) render(); }
+    } catch (e) { console.warn('Synchro descendante reportée', e.message); }
+  }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') syncDown(); });
+  window.addEventListener('online', () => syncDown(true));
   render();
   ST.flush();
-  KP.app = { st, render, week };
+  syncDown(true);
+  KP.app = { st, render, week, syncDown };
 })(window.KP);

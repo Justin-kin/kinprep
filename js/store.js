@@ -114,7 +114,7 @@
       } catch (e) { console.warn('Synchro reportée', e.message); break; }
     }
   }
-  S.sync = function (job) { if (!enabled()) return; S.data.queue.push(job); S.save(); flush(); };
+  S.sync = function (job) { if (!enabled()) return; if (job.t === 'profile') S.data.profileAt = Date.now(); S.data.queue.push(job); S.save(); flush(); };
   S.flush = flush;
   window.addEventListener('online', flush);
 

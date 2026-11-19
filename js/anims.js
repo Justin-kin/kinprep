@@ -307,7 +307,12 @@
   A.ab_wheel_stand = an([ws(-30, 60, 112), ws(-68, 80, 194)], 1.8, 0.5);
   // rotation externe couché sur le côté : vu de face, corps à l'horizontale sur le banc, avant-bras qui passe du ventre vers le plafond
   const erS = fa => P({ a: ['hip', 92, 97], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [-90, fa], af: [96, 176], p: [{ k: 'bench', x: 46, y: 104, w: 112 }, { k: 'db', j: 'hn' }] });
-  A.ext_rot_side = an([erS(72), erS(172)], 1.4, 0.5);
+  // couché sur le flanc : bras du dessus tendu, de la verticale vers le bas à la verticale vers le haut
+  const erF = a2 => P({ a: ['hip', 92, 94], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [a2, a2], af: [96, 176], p: [{ k: 'bench', x: 46, y: 101, w: 112 }, { k: 'db', j: 'hn' }, { k: 'label', x: 40, y: 40, txt: 'Bras du dessus' }] });
+  A.ext_rot_side = an([erF(2), erF(178)], 1.4, 0.6);
+  // assis, coude sur le genou : avant-bras de l'horizontale à la verticale (vue de face)
+  const erK = fa => P({ v: 'front', a: ['hip', 96, 104], t: 180, hd: 180, ln: [138, 12, 90], lf: [-20, 0, -90], an: [62, fa], af: [-20, -8], p: [{ k: 'bench', x: 56, y: 108, w: 84 }, { k: 'db', j: 'hn' }, { k: 'label', x: 40, y: 20, txt: 'Coude posé sur le genou' }] });
+  A.ext_rot_knee = an([erK(-90), erK(-180)], 1.3, 0.6);
   // ---------- corrections du 11/11 ----------
   // chaise : position fixe, bras croisés sur la poitrine
   A.wall_sit = an([P({ a: ['hip', 72, 106], t: 180, ln: [90, 0, 90], lf: [90, 0, 90], an: [20, 112], af: [20, 112], p: [{ k: 'wall', x: 60, top: 15 }] })]);
@@ -337,6 +342,13 @@
   A['rot_band_high@2'] = an([fArm(110, { p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] }), fHit(110, { an: [96, 96], p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] })], 0.35, 0.4);
   A['rot_throw@2'] = an([fArm(100, { an: [-60, -40], af: [-50, -30], p: [{ k: 'ball', j: 'hn', o: [-4, 0] }] }), fHit(100, { an: [90, 90], af: [80, 80], p: [{ k: 'ball', j: 'hn', o: [8, 0] }] })], 0.35, 0.4);
   A['rot_throw_diag@2'] = an([fArm(100, { an: [-40, -20], af: [-40, -20], p: [{ k: 'ball', j: 'hn', o: [-4, 4] }] }), fHit(100, { an: [140, 140], af: [130, 130], p: [{ k: 'ball', j: 'hn', o: [6, -6] }] })], 0.35, 0.4);
+  // talons-fesses : buste fixe, appuis alternés, le talon monte vers la fesse (comme les montées de genoux)
+  A.butt_kicks = an([P({ a: ['hip', 100, 76], t: 182, hd: 182, ln: [12, -158, -110], lf: [0, 0, 90], ik: { ff: [100, 136] }, an: [-30, 60], af: [40, 150] }), P({ a: ['hip', 100, 76], t: 182, hd: 182, lf: [12, -158, -110], ln: [0, 0, 90], ik: { fn: [100, 136] }, af: [-30, 60], an: [40, 150] })], 0.2, 0.0);
+  // Y-T-W (11/18) : vue principale de dessus, allongé sur le ventre (forme des lettres) ; 2e vue de côté, bras qui montent lentement
+  const lie = (far, near, txt) => P({ v: 'front', a: ['hip', 70, 80], o: [0, 6, 0, 12], t: 90, hd: 90, ln: [-84, -88, 180], lf: [-96, -92, 180], an: near, af: far, p: [{ k: 'label', x: 40, y: 30, txt }] });
+  A.ytw = an([lie([135, 135], [45, 45], 'Y · vue de dessus'), lie([180, 180], [0, 0], 'T · vue de dessus'), lie([-130, 140], [-50, 40], 'W · vue de dessus')], 1.0, 1.0, 'loop');
+  const pr2 = (an, af) => prone({ an, af });
+  A['ytw@2'] = an([pr2([82, 82], [82, 82]), pr2([108, 108], [108, 108])], 1.4, 0.8);
   A.pushup_plus = an([pu(112, 136, G), pu(115, 136, G)], 0.6, 0.3);
   A.hop_rot = A.lat_bound_rot;
 

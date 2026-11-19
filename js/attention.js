@@ -101,7 +101,8 @@
     // ---------- épaule et omoplate ----------
     ext_rot: ['Coude collé au corps (serviette roulée)', 'Mouvement lent', 'Élastique léger'],
     ext_rot_ecc: ['Coude collé au corps', 'Retour en 3 s', 'Élastique léger'],
-    ext_rot_side: ['Coude collé au corps, serviette roulée dessous', 'Retour en 2 s', 'Charge légère, sans compenser avec le buste'],
+    ext_rot_side: ['Le buste ne roule pas', 'Mouvement lent sur tout l\'arc', 'Charge légère'],
+    ext_rot_knee: ['Coude fixe sur le genou', 'Avant-bras qui tourne, l\'épaule reste basse', 'Retour lent, même quand c\'est lourd'],
     ext_rot_90: ['Coude à hauteur d\'épaule, il ne descend pas', 'Retour en 2 s', 'Élastique léger'],
     pushup_plus: ['Bras tendus, seules les omoplates bougent', 'Corps gainé, bas du dos neutre', 'Pousse le sol au maximum en haut'],
     face_pull: ['Tire vers le front, coudes hauts', 'Buste stable, sans cambrer', 'Pause 1 s en fin de mouvement'],

@@ -132,7 +132,8 @@
   /* Animation : { f:[poses], d: durée transition (s), h: pause (s), m:'yoyo'|'loop' } */
   function sample(anim, time) {
     const fr = anim.f; if (fr.length === 1) return fr[0];
-    const d = anim.d || 0.9, h = anim.h == null ? 0.35 : anim.h;
+    // mouvements ralentis (×1,4), sauf les exercices explosifs (transitions courtes)
+    const d0 = anim.d || 0.9, slow = d0 > 0.45 ? 1.4 : 1, d = d0 * slow, h = (anim.h == null ? 0.35 : anim.h) * slow;
     const seq = anim.m === 'loop' ? fr.map((_, i) => [i, (i + 1) % fr.length]) : [...fr.slice(0, -1).map((_, i) => [i, i + 1]), ...fr.slice(1).map((_, i) => [fr.length - 1 - i, fr.length - 2 - i])];
     const seg = d + h, total = seq.length * seg;
     let t = ((time % total) + total) % total; const i = Math.min(seq.length - 1, Math.floor(t / seg)); t -= i * seg;

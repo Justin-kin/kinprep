@@ -6,7 +6,7 @@
     lateral_walk: ['Mini-bande autour des chevilles (ou des genoux)', 'En demi-squat : 5 pas vers la gauche, puis 5 vers la droite, deux fois', 'Pieds parallèles, l\'élastique reste tendu entre les pieds'],
     nordic: ['À genoux, pieds bloqués (sous un canapé ou tenus par un partenaire)', 'Corps gainé de la tête aux genoux', 'Descends le plus lentement possible, rattrape-toi avec les mains, remonte en t\'aidant des mains'],
     nordic_assist: ['Élastique accroché en hauteur devant toi, l\'autre bout tenu contre la poitrine', 'Pieds bloqués, corps gainé des genoux à la tête', 'Descends lentement, l\'élastique t\'aide en fin de course'],
-    ham_slide: ['En pont fessier, talons posés sur les disques', 'Allonge les jambes en gardant le bassin haut', 'Ramène les talons vers les fesses'],
+    ham_slide: ['En pont fessier, talons posés sur des disques de glisse ou sur une serviette (sol lisse)', 'Allonge les jambes en gardant le bassin haut', 'Ramène les talons vers les fesses'],
     ham_swiss: ['Allongé sur le dos, talons sur le ballon, bassin haut', 'Ramène le ballon vers les fesses avec les talons', 'Repousse le ballon lentement, bassin toujours haut'],
     copenhagen: ['En gainage latéral sur l\'avant-bras, cheville de la jambe du dessus posée sur le banc', 'Soulève le bassin : corps aligné de la cheville à la tête', 'Tiens la position, la jambe du dessous reste libre'],
     copenhagen_short: ['En gainage latéral sur l\'avant-bras, genou de la jambe du dessus posé sur le banc ou la chaise', 'Soulève le bassin : corps aligné du genou à la tête', 'Tiens la position, la jambe du dessous reste libre'],
@@ -52,7 +52,7 @@
     nordic: 'Descente la plus lente possible (3 à 5 s)', nordic_assist: 'Descente 3 à 5 s', reverse_nordic: 'Descente 3 s', ham_slide: 'Jambes qui s\'allongent en 3 s', ham_swiss: 'Ballon repoussé en 3 s', leg_curl: 'Descente 3 s',
     calf: 'Pause 1 s en haut, descente 2 s', calf_db: 'Pause 1 s en haut, descente 2 s', calf_sl: 'Descente 3 s sur 1 jambe', calf_seated: 'Descente 2 s', tibialis: 'Descente 2 s', peroneal: 'Retour 2 s',
     pull_up_neg: 'Descente 4 à 5 s', curl: 'Descente 2 s', wrist_ecc: 'Descente 4 s', pronosup: '2 s dans chaque sens',
-    ext_rot: 'Retour 3 s', ext_rot_ecc: 'Ouverture 1 s, retour 3 s', ext_rot_side: 'Retour 2 s', ext_rot_90: 'Retour 2 s', face_pull: 'Retour 2 s', pull_apart: 'Retour 2 s', ytw: 'Tiens 2 s en haut', pushup_plus: 'Relâche en 2 s',
+    ext_rot: 'Retour 3 s', ext_rot_ecc: 'Ouverture 1 s, retour 3 s', ext_rot_side: 'Retour 2 s', ext_rot_knee: 'Retour 2 s', ext_rot_90: 'Retour 2 s', face_pull: 'Retour 2 s', pull_apart: 'Retour 2 s', ytw: 'Tiens 2 s en haut', pushup_plus: 'Relâche en 2 s',
     straight_pulldown: 'Ramené explosif, remontée 2 s', rot_band: 'Rotation explosive, retour 2 s', rot_band_high: 'Rotation explosive, retour 2 s', chop_ecc: 'Tirage 1 s, retour 3 s', pallof: 'Tiens 2 s bras tendus',
     dead_bug: 'Allonge en 2 s', bird_dog: 'Tiens 2 s', superman: 'Tiens 2 s', ab_wheel: 'Aller en 2 s', ab_wheel_stand: 'Aller en 2 s', pullover: 'Descente 2 s',
   };
