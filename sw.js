@@ -1,5 +1,5 @@
-const CACHE = 'kinprep-202611112313';
-const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/ring.png", "icons/logo-wc.png", "js/config.js?v=202611112313", "js/equipment.js?v=202611112313", "js/figure.js?v=202611112313", "js/anims.js?v=202611112313", "js/exercises.js?v=202611112313", "js/attention.js?v=202611112313", "js/clarity.js?v=202611112313", "js/calendar.js?v=202611112313", "js/generator.js?v=202611112313", "js/store.js?v=202611112313", "js/app.js?v=202611112313"];
+const CACHE = 'kinprep-202611190932';
+const FILES = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/ring.png", "icons/logo-wc.png", "js/config.js?v=202611190932", "js/equipment.js?v=202611190932", "js/figure.js?v=202611190932", "js/anims.js?v=202611190932", "js/exercises.js?v=202611190932", "js/attention.js?v=202611190932", "js/clarity.js?v=202611190932", "js/calendar.js?v=202611190932", "js/generator.js?v=202611190932", "js/store.js?v=202611190932", "js/app.js?v=202611190932"];
 self.addEventListener('install', e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
