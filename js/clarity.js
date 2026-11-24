@@ -17,7 +17,6 @@
     pull_up_band: ['Élastique accroché à la barre, sous un genou ou un pied', 'Tire jusqu\'au menton au-dessus de la barre', 'Prends un élastique moins fort au fil des semaines'],
     pull_up_neg: ['Monte sur une chaise pour avoir le menton au-dessus de la barre', 'Descends le plus lentement possible jusqu\'aux bras tendus', 'Remonte avec la chaise, sans tirer'],
     lat_pull_band: ['Élastique accroché en hauteur, une extrémité dans chaque main', 'Tire les coudes vers les côtes', 'Reviens bras tendus en contrôle'],
-    pec_iso: ['Ballon (ou coussin) entre les paumes, à hauteur de poitrine', 'Écrase-le de toutes tes forces 5 s', 'Relâche, recommence'],
     ext_rot: ['Élastique accroché sur le côté, tenu dans la main la plus éloignée', 'Coude collé au corps, à 90° (serviette roulée dessous)', 'Ouvre l\'avant-bras vers l\'extérieur, puis reviens'],
     ext_rot_ecc: ['Élastique accroché sur le côté, tenu dans la main la plus éloignée', 'Coude collé au corps, à 90°', 'Ouvre l\'avant-bras vite, reviens en freinant'],
     ext_rot_90: ['Élastique accroché devant toi, tenu dans une main', 'Bras à l\'horizontale sur le côté, coude plié à 90°, main vers l\'avant', 'Bascule l\'avant-bras vers le haut, puis reviens'],
@@ -46,7 +45,11 @@
     wall_sit: ['Dos plaqué au mur, pieds avancés', 'Descends jusqu\'aux genoux à 90°', 'Bras croisés sur la poitrine, respire calmement'],
   };
   // rythme d'exécution affiché en séance (lent) ; la vitesse maximale est ajoutée par le générateur en puissance
+  const HI = 'À fond : cherche à sauter le plus haut possible', FAR = 'À fond : cherche à aller le plus loin possible';
   const TEMPO = {
+    cmj: HI, squat_jump: HI, box_jump: HI, tuck_jump: HI, jump_squat_db: HI, split_jump: HI, broad_jump: FAR, broad_sl: FAR, hop_sl: FAR,
+    lat_bound: 'À fond : le plus loin possible sur le côté', skater: 'À fond : le plus loin possible sur le côté, en enchaînant vite',
+    lat_hops: 'Contacts au sol les plus courts possible', pogo: 'Rebonds les plus rapides et les plus hauts possible',
     squat_tempo: 'Descente 3 s, pause 1 s en bas, montée 1 s', back_squat: 'Descente 2 s, montée rapide', bulgarian_db: 'Descente 2 s, montée rapide', bulgarian: 'Descente 2 s, montée rapide',
     step_up: 'Redescente 2 s', bridge: 'Pause 1 s en haut, descente 2 s', bridge_db: 'Pause 1 s en haut, descente 2 s', sl_bridge: 'Pause 1 s en haut, descente 2 s', hip_thrust_db: 'Pause 1 s en haut, descente 2 s', hip_thrust_bar: 'Pause 1 s en haut, descente 2 s',
     nordic: 'Descente la plus lente possible (3 à 5 s)', nordic_assist: 'Descente 3 à 5 s', reverse_nordic: 'Descente 3 s', ham_slide: 'Jambes qui s\'allongent en 3 s', ham_swiss: 'Ballon repoussé en 3 s', leg_curl: 'Descente 3 s',

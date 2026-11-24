@@ -21,10 +21,9 @@
   /* Types : J = journée de championnat, EN = entraînement national (4 h), PO = play-offs,
      COMP = compétition internationale, STAGE = stage national, INFO = événement sans impact. */
   const EVENTS = [
-    ['2026-11-15', 'J', 'J4 · Nivelles'], ['2026-11-22', 'J', 'J5 · Oreye'], ['2026-12-05', 'J', 'J6 · Aubel'], ['2026-12-06', 'EN', 'EN 3'],
-    ['2026-12-13', 'J', 'J7 · Fléron'], ['2026-12-19', 'EN', 'EN 4'],
-    ['2027-01-10', 'EN', 'EN 5'], ['2027-01-17', 'J', 'J8 · Herve'], ['2027-01-24', 'EN', 'EN 6'], ['2027-01-30', 'J', 'J9 · Jodoigne'],
-    ['2027-02-06', 'J', 'J10 · K-Ribou'], ['2027-02-13', 'INFO', 'Kin-Day'], ['2027-02-14', 'EN', 'EN 7'], ['2027-02-21', 'J', 'J11 · Thimister'],
+    ['2026-12-06', 'EN', 'EN 3'], ['2026-12-19', 'EN', 'EN 4'],
+    ['2027-01-10', 'EN', 'EN 5'], ['2027-01-24', 'EN', 'EN 6'],
+    ['2027-02-13', 'INFO', 'Kin-Day'], ['2027-02-14', 'EN', 'EN 7'], ['2027-02-21', 'J', 'J11 · Thimister'],
     ['2027-03-07', 'EN', 'EN 8'], ['2027-03-14', 'J', 'J12 · Hannut'], ['2027-03-21', 'EN', 'EN 9'], ['2027-03-27', 'J', 'J13 · KBBT'],
     ['2027-04-10', 'PO', 'Play-offs 1', 'po'], ['2027-04-11', 'EN', 'EN 10', 'nopo'],
     ['2027-04-17', 'PO', 'Play-offs 2', 'po'], ['2027-04-18', 'EN', 'EN 11', 'nopo'],
@@ -39,14 +38,41 @@
     ['2027-10-30', 'COMP', 'World Cup', null, 2],
   ].map(([d, type, label, cond, days]) => ({ date: d, type, label, cond: cond || null, days: days || 1 }));
 
+  /* Championnat D1 et D2 Hommes 2026-2027 (calendrier officiel kin-ball.be, journées 1 à 10 publiées).
+     Chaque match = 3 équipes. Un joueur ne voit que les journées où son équipe joue (profil : équipe). */
+  const TEAMS_D1 = ['Aubel 1', 'Herve 1', 'K-Ribou 1', 'KBBTeam 1', 'Oreye 1', 'Verviers 1', 'Wallaby 1'];
+  const TEAMS_D2 = ['Aubel 2', 'Aubel 3', 'Fléron', 'Jodoigne 1', 'KBBTeam 2', 'KBBTeam 3', 'Verviers 2'];
+  const TEAMS = TEAMS_D1.concat(TEAMS_D2);
+  // D1 et D2 jouent les mêmes jours au même endroit : une journée = les matchs des deux divisions
+  const CHAMP = [
+    ['2026-10-04', 1, 'Héron', [['10h00', 'Aubel 1', 'K-Ribou 1', 'KBBTeam 1'], ['12h00', 'Verviers 1', 'Wallaby 1', 'KBBTeam 1'], ['14h30', 'Fléron', 'Aubel 3', 'KBBTeam 2'], ['16h30', 'Verviers 2', 'Jodoigne 1', 'KBBTeam 3']]],
+    ['2026-10-10', 2, 'Thimister', [['9h30', 'Wallaby 1', 'Herve 1', 'Aubel 1'], ['11h30', 'Wallaby 1', 'K-Ribou 1', 'Oreye 1'], ['12h30', 'Aubel 2', 'Jodoigne 1', 'Fléron']]],
+    ['2026-10-17', 3, 'Verviers', [['10h00', 'Oreye 1', 'Verviers 1', 'Aubel 1'], ['11h00', 'Verviers 2', 'Aubel 3', 'Fléron'], ['13h00', 'Verviers 2', 'KBBTeam 2', 'Aubel 2']]],
+    ['2026-11-15', 4, 'Nivelles', [['12h00', 'KBBTeam 1', 'K-Ribou 1', 'Herve 1'], ['10h00', 'KBBTeam 2', 'KBBTeam 3', 'Jodoigne 1']]],
+    ['2026-11-22', 5, 'Oreye', [['10h00', 'Verviers 1', 'K-Ribou 1', 'Oreye 1'], ['12h00', 'Verviers 1', 'Wallaby 1', 'Herve 1'], ['14h30', 'KBBTeam 3', 'Verviers 2', 'Fléron']]],
+    ['2026-12-05', 6, 'Aubel', [['13h00', 'Herve 1', 'Oreye 1', 'Aubel 1'], ['15h30', 'Herve 1', 'Verviers 1', 'KBBTeam 1'], ['14h30', 'Aubel 2', 'KBBTeam 3', 'Aubel 3'], ['16h30', 'Jodoigne 1', 'KBBTeam 2', 'Aubel 3']]],
+    ['2026-12-13', 7, 'Fléron', [['11h30', 'Aubel 1', 'KBBTeam 1', 'Wallaby 1'], ['9h30', 'Jodoigne 1', 'Verviers 2', 'Aubel 2'], ['16h00', 'Fléron', 'Aubel 3', 'KBBTeam 3']]],
+    ['2027-01-17', 8, 'Battice', [['10h30', 'Wallaby 1', 'Verviers 1', 'K-Ribou 1'], ['14h00', 'Herve 1', 'Oreye 1', 'KBBTeam 1'], ['9h30', 'KBBTeam 2', 'Verviers 2', 'Aubel 3'], ['11h30', 'KBBTeam 2', 'KBBTeam 3', 'Aubel 2']]],
+    ['2027-01-31', 9, 'Hélécine', [['11h00', 'Aubel 1', 'K-Ribou 1', 'Herve 1'], ['13h00', 'Aubel 1', 'KBBTeam 1', 'Verviers 1'], ['16h30', 'Jodoigne 1', 'Verviers 2', 'Fléron']]],
+    ['2027-02-06', 10, 'Bruxelles', [['12h00', 'Wallaby 1', 'Aubel 1', 'Oreye 1'], ['14h30', 'K-Ribou 1', 'KBBTeam 1', 'Oreye 1'], ['10h00', 'KBBTeam 3', 'KBBTeam 2', 'Verviers 2'], ['16h30', 'Jodoigne 1', 'Aubel 2', 'Aubel 3']]],
+  ];
+  CHAMP.forEach(([d, j, lieu, m]) => EVENTS.push({ date: d, type: 'J', label: `J${j} · ${lieu}`, cond: 'team', days: 1, games: m.map(([h, ...t]) => ({ h, t })) }));
+  // journées 11 à 13 : équipes pas encore publiées, affichées pour tout le monde (liste EVENTS)
+  EVENTS.sort((a, b) => a.date.localeCompare(b.date));
+
   const EVENT_WEIGHT = { J: 2, EN: 2, PO: 3, COMP: 4, STAGE: 3, INFO: 0 };
   const EVENT_LABEL = { J: 'Championnat', EN: 'Entraînement national', PO: 'Play-offs', COMP: 'Compétition', STAGE: 'Stage', INFO: 'Événement' };
 
   function eventsOfWeek(n, profile) {
     const a = weekStart(n), b = new Date(a.getTime() + 7 * DAY);
     return EVENTS.filter(e => { const d = parse(e.date); return d >= a && d < b; })
-      .filter(e => !e.cond || (e.cond === 'po' && profile && profile.po === true) || (e.cond === 'nopo' && !(profile && profile.po === true)) || (e.cond === 'cc' && !(profile && profile.cc === false)))
-      .map(e => Object.assign({}, e, { dow: (parse(e.date).getDay() + 6) % 7 }));
+      .filter(e => !e.cond || (e.cond === 'po' && profile && profile.po === true) || (e.cond === 'nopo' && !(profile && profile.po === true)) || (e.cond === 'cc' && !(profile && profile.cc === false))
+        || (e.cond === 'team' && (!(profile && profile.team) || e.games.some(g => g.t.includes(profile.team)))))
+      .map(e => {
+        const o = Object.assign({}, e, { dow: (parse(e.date).getDay() + 6) % 7 });
+        if (e.games && profile && profile.team) { const mine = e.games.filter(g => g.t.includes(profile.team)); o.label = `${e.label} · ${mine.map(g => g.h).join(' et ')} (${mine.length} match${mine.length > 1 ? 's' : ''})`; o.matches = mine.length; }
+        return o;
+      });
   }
   function clubActive(n) {
     const d = weekStart(n);
@@ -104,5 +130,5 @@
     return { phase: p, wi, wtype, k: Math.max(0, k), nInPhase: p.w[1] - p.w[0] + 1 };
   }
 
-  KP.cal = { FIRST, BETA, BETA_INFO, isBeta, wkName, START, NWEEKS, DAY, weekStart, weekOf, weekLabel, iso, parse, fmt, MOIS, JOURS, JOURS_LONG, EVENTS, EVENT_WEIGHT, EVENT_LABEL, eventsOfWeek, clubActive, PHASES, phaseOf };
+  KP.cal = { TEAMS, TEAMS_D1, TEAMS_D2, FIRST, BETA, BETA_INFO, isBeta, wkName, START, NWEEKS, DAY, weekStart, weekOf, weekLabel, iso, parse, fmt, MOIS, JOURS, JOURS_LONG, EVENTS, EVENT_WEIGHT, EVENT_LABEL, eventsOfWeek, clubActive, PHASES, phaseOf };
 })(window.KP = window.KP || {});

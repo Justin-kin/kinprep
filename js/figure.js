@@ -84,7 +84,7 @@
     if (k === 'mat') return `<rect class="mat" x="${pr.x || 30}" y="${GROUND}" width="${pr.w || 140}" height="4" rx="2"/>`;
     if (k === 'pad') return `<rect class="mat" x="${f1(pr.x)}" y="${f1(pr.y)}" width="${pr.w || 18}" height="${pr.h || 6}" rx="3"/>`;
     if (k === 'arrow') { const [x, y, a, l] = [pr.x, pr.y, pr.a, pr.l || 18]; const e = add([x, y], a, l); const h1 = add(e, a + 150, 6), h2 = add(e, a - 150, 6); return `<path class="arr" d="M${f1(x)} ${f1(y)} L${pt(e)} M${pt(h1)} L${pt(e)} L${pt(h2)}"/>`; }
-    if (k === 'label') return `<text class="lbl" x="${pr.x}" y="${pr.y}">${pr.txt}</text>`;
+    if (k === 'label') { const w = String(pr.txt).length * 6.2, fit = w > 184 ? ` textLength="184" lengthAdjust="spacingAndGlyphs"` : ''; return `<text class="lbl" x="100" y="-10" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor"${fit}>${pr.txt}</text>`; } // centré, toujours dans le cadre
     return '';
   }
 

@@ -63,7 +63,7 @@
     // ---------- adducteurs ----------
     copenhagen: ['Bassin aligné, il ne tombe pas', 'Corps droit de la tête aux pieds', 'Respire pendant le maintien'],
     bridge_db: ['Pousse avec les fessiers, pas avec le dos', 'Côtes basses en haut', 'Haltère stable sur les hanches'],
-    elbow_iso_floor: ['Bras complètement tendu', 'Monte en intensité sur chaque poussée', 'Respire pendant la contraction'],
+    elbow_iso_floor: ['Bras complètement tendu', 'Respecte l\'intensité de la semaine', 'Respire pendant la contraction'],
     copenhagen_short: ['Hanche tendue, corps aligné', 'Bassin haut', 'Respire pendant le maintien'],
     add_squeeze: ['Respire pendant l\'effort', 'Monte progressivement en intensité', 'Bassin au sol'],
     // ---------- poussées ----------
@@ -93,7 +93,7 @@
     row_band: ['Buste droit et immobile', 'Tire les coudes vers l\'arrière', 'Épaules basses'],
     row_bar: ['Dos plat, buste fixe', 'Barre vers le nombril', 'Pas d\'élan avec les jambes'],
     // ---------- pectoraux et bras tendus ----------
-    pec_iso: ['Respire pendant la contraction', 'Coudes à hauteur de poitrine', 'Monte en intensité sur chaque contraction'],
+    pec_iso: ['Bras complètement tendu', 'Respecte l\'intensité de la semaine', 'Respire pendant la contraction'],
     fly_db: ['Descends jusqu\'à l\'alignement des épaules, pas plus', 'Coudes légèrement fléchis, fixes', 'Mouvement contrôlé'],
     pullover: ['Bras quasi tendus pendant tout le mouvement', 'Côtes basses, sans cambrer', 'Remonte en contractant les dorsaux'],
     pullover_band: ['Bras quasi tendus', 'Côtes basses', 'Ramène jusqu\'aux hanches'],
@@ -101,7 +101,11 @@
     // ---------- épaule et omoplate ----------
     ext_rot: ['Coude collé au corps (serviette roulée)', 'Mouvement lent', 'Élastique léger'],
     ext_rot_ecc: ['Coude collé au corps', 'Retour en 3 s', 'Élastique léger'],
-    ext_rot_side: ['Le buste ne roule pas', 'Mouvement lent sur tout l\'arc', 'Charge légère'],
+    sit_jump: ['Pars bien assis, sans élan du buste', 'Pousse fort dans le pied au sol', 'Réception souple sur la même jambe'],
+    pistol_db: ['Genou dans l\'axe du pied', 'Descente contrôlée jusqu\'au banc', 'Remonte le plus vite possible'],
+    reverse_snatch: ['Freine la descente sur 3 s', 'Haltère près du corps', 'Dos plat en bas'],
+    rot_db: ['Bras tendus', 'Le bassin et les pieds pivotent', 'Contrôle chaque changement de sens'],
+        ext_rot_side: ['Le buste ne roule pas', 'Mouvement lent sur tout l\'arc', 'Charge légère'],
     ext_rot_knee: ['Coude fixe sur le genou', 'Avant-bras qui tourne, l\'épaule reste basse', 'Retour lent, même quand c\'est lourd'],
     ext_rot_90: ['Coude à hauteur d\'épaule, il ne descend pas', 'Retour en 2 s', 'Élastique léger'],
     pushup_plus: ['Bras tendus, seules les omoplates bougent', 'Corps gainé, bas du dos neutre', 'Pousse le sol au maximum en haut'],

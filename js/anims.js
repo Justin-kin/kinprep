@@ -120,7 +120,7 @@
   A.face_pull = an([stand(100, { an: [100, 100], af: [96, 96], p: [{ k: 'band', from: 'hn', to: [188, 30] }, { k: 'wall', x: 188, top: 20 }] }), stand(100, { an: [-100, 166], af: [-100, 166], p: [{ k: 'band', from: 'hn', to: [188, 30] }, { k: 'wall', x: 188, top: 20 }] })]);
   A.pull_apart = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [40, 80], af: [-40, -80], p: [{ k: 'band', from: 'hn', to: 'hf' }] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [90, 90], af: [-90, -90], p: [{ k: 'band', from: 'hn', to: 'hf' }] })]);
   A.ext_rot = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [0, -40], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [40, 96] }, { k: 'wall', x: 30, top: 60 }] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [0, 80], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [40, 96] }, { k: 'wall', x: 30, top: 60 }] })], 1.0, 0.4);
-  A.ext_rot_90 = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [90, 90], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [190, 112] }] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [90, 180], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [190, 112] }] })], 1.0, 0.4);
+  A.ext_rot_90 = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [90, 10], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [150, 146] }, { k: 'label', txt: 'Coude fixe à hauteur d\'épaule' }] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [4, 0, 90], lf: [-4, 0, -90], an: [90, 180], af: [-6, -6], p: [{ k: 'band', from: 'hn', to: [150, 146] }, { k: 'label', txt: 'Coude fixe à hauteur d\'épaule' }] })], 1.4, 0.6); // élastique fixé bas devant
   const prone = (o = {}) => P(Object.assign({ a: ['hip', 84, 132], t: 90, hd: 94, ln: [-90, -90, -170], lf: [-90, -90, -170], an: [90, 90], af: [90, 90] }, o));
   A.ytw = an([prone({ an: [120, 118], af: [120, 118] }), prone({ an: [165, 165], af: [165, 165] }), prone({ an: [-160, 160], af: [-160, 160] })], 0.9, 0.5, 'loop');
   A.superman = an([prone(), prone({ t: 84, hd: 80, ln: [-96, -96, -170], lf: [-96, -96, -170], an: [110, 105], af: [110, 105] })]);
@@ -145,6 +145,11 @@
   A.bird_dog = an([quad(), quad({ an: [176, 176].map(() => 96), af: [-2, 2], ln: [-88, -90, -170] })]);
   A.curl_up = an([supine({ a: ['hip', 94, 134], t: -90, ln: [140, 20, 90], lf: [92, 92, 170], an: [-90, -90], af: [-90, -90] }), supine({ a: ['hip', 94, 134], t: -76, hd: -68, ln: [140, 20, 90], lf: [92, 92, 170], an: [-90, -90], af: [-90, -90] })], 0.9, 0.9);
   A.pallof = an([P({ a: ['fn', 100, G], t: 178, ln: [18, -12, 90], lf: [18, -12, 90], an: [10, 150], af: [10, 150], p: [{ k: 'band', from: 'hn', to: [30, 72], back: true }, { k: 'wall', x: 30, top: 50 }] }), P({ a: ['fn', 100, G], t: 178, ln: [18, -12, 90], lf: [18, -12, 90], an: [92, 92], af: [92, 92], p: [{ k: 'band', from: 'hn', to: [30, 72], back: true }, { k: 'wall', x: 30, top: 50 }] })], 1.0, 0.8);
+  // ajouts 24/11
+  A.sit_jump = an([P({ a: ['hip', 84, 106], t: 176, ln: [88, 0, 90], lf: [70, 40, 90], an: [30, 60], af: [30, 60], p: [{ k: 'bench', x: 50, y: 110, w: 48 }] }),
+    P({ a: ['tn', 104, G - 8], t: 180, ln: [-2, -2, 40], lf: [70, -30, 90], an: [120, 140], af: [120, 140], p: [{ k: 'bench', x: 50, y: 110, w: 48 }] })], 0.6, 0.5);
+  A.pistol_db = an([P({ a: ['fn', 100, G], t: 180, ln: [0, 0, 90], lf: [30, 30, 90], an: [40, 150], af: [40, 150], p: [{ k: 'box', x: 46, y: 112, w: 36 }, { k: 'db', j: 'hn' }] }), P({ a: ['fn', 100, G], t: 140, ln: [78, -30, 90], lf: [70, 80, 160], an: [70, 170], af: [70, 170], p: [{ k: 'box', x: 46, y: 112, w: 36 }, { k: 'db', j: 'hn' }] })], 1.0, 0.4);
+  A.rot_db = an([P({ v: 'front', a: ['ff', 80, G], t: 178, ln: [12, 0, 90], lf: [-12, 0, -90], an: [-40, -40], af: [-40, -40], p: [{ k: 'db', j: 'hn' }] }), P({ v: 'front', a: ['ff', 80, G], t: 182, ln: [12, 0, 90], lf: [-12, 0, -90], an: [40, 40], af: [40, 40], p: [{ k: 'db', j: 'hn' }] })], 1.2, 0.4);
   A.landmine_rot = an([P({ v: 'front', a: ['ff', 80, G], t: 178, ln: [12, 0, 90], lf: [-12, 0, -90], an: [-150, -150], af: [-150, -150], p: [{ k: 'land', from: [100, 138], to: 'hf' }] }), P({ v: 'front', a: ['ff', 80, G], t: 182, ln: [12, 0, 90], lf: [-12, 0, -90], an: [150, 150], af: [150, 150], p: [{ k: 'land', from: [100, 138], to: 'hn' }] })]);
   A.chop = an([P({ v: 'front', a: ['ff', 80, G], t: 176, ln: [18, -6, 90], lf: [-12, 0, -90], an: [-150, -150], af: [-150, -150], p: [{ k: 'band', from: 'hf', to: [20, 10] }] }), P({ v: 'front', a: ['ff', 80, G], t: 184, ln: [28, -16, 90], lf: [-12, 0, -90], an: [40, 30], af: [40, 30], p: [{ k: 'band', from: 'hn', to: [20, 10] }] })], 0.8, 0.3);
   A.russian_twist = an([P({ v: 'front', a: ['hip', 100, 128], t: 170, ln: [70, 30, 90], lf: [-70, -30, -90], an: [-40, -10], af: [-60, -20], p: [{ k: 'ball', j: 'hf', o: [0, 0], r: 8 }] }), P({ v: 'front', a: ['hip', 100, 128], t: 190, ln: [70, 30, 90], lf: [-70, -30, -90], an: [60, 20], af: [40, 10], p: [{ k: 'ball', j: 'hn', o: [0, 0], r: 8 }] })], 0.7, 0.2);
@@ -160,7 +165,13 @@
   A.scoop_toss = A.rot_throw;
   A.frappe_band = an([stand(98, { t: 186, ln: [10, -6, 90], lf: [-18, -18, 70], an: [-170, -150], af: [60, 40], p: [{ k: 'band', from: 'hn', to: [20, 8] }] }), stand(110, { t: 160, ln: [22, -10, 90], lf: [-30, -40, 50], an: [80, 70], af: [-30, -20], p: [{ k: 'band', from: 'hn', to: [20, 8] }] })], 0.3, 0.6);
   A.frappe_ball = an([stand(98, { t: 186, ln: [10, -6, 90], lf: [-18, -18, 70], an: [-170, -150], af: [60, 40], p: [{ k: 'ball', j: 'hn', o: [4, -6], r: 6 }] }), stand(110, { t: 160, ln: [22, -10, 90], lf: [-30, -40, 50], an: [80, 70], af: [-30, -20], p: [{ k: 'ball', x: 178, y: 104, r: 6 }, { k: 'wall', x: 192, top: 30 }] })], 0.3, 0.6);
-  A.db_snatch = an([P({ a: ['fn', 100, G], t: 120, ln: [52, -24, 90], lf: [52, -24, 90], an: [8, 0], af: [-30, 30], p: dbN }), P({ a: ['tn', 108, G], t: 182, ln: [0, 0, 40], lf: [0, 0, 40], an: [-170, 150], af: [-10, 0], p: dbN }), stand(100, { an: [180, 180], af: [-10, 0], p: dbN })], 0.4, 0.3);
+  // arraché haltère (11/24) : départ fléchi haltère entre les pieds → extension sur pointes, coude haut → réception bras tendu au-dessus de la tête → debout
+  A.db_snatch = an([
+    P({ a: ['fn', 100, G], t: 128, ln: [58, -30, 90], lf: [58, -30, 90], an: [4, 0], af: [-20, 10], p: dbN }),
+    P({ a: ['tn', 104, G], t: 180, ln: [-4, -4, 40], lf: [-4, -4, 40], an: [125, -15], af: [-10, 0], p: dbN }),
+    P({ a: ['fn', 100, G], t: 178, ln: [34, -22, 90], lf: [34, -22, 90], an: [178, 178], af: [-10, 0], p: dbN }),
+    stand(100, { an: [180, 180], af: [-10, 0], p: dbN })], 0.5, 0.4);
+  A.reverse_snatch = an([A.db_snatch.f[3], A.db_snatch.f[2], A.db_snatch.f[1], A.db_snatch.f[0]], 1.3, 0.4); // en haut puis descente freinée
   A.db_clean = an([P({ a: ['fn', 100, G], t: 130, ln: [44, -20, 90], lf: [44, -20, 90], an: [2, 0], af: [-2, 0], p: db2 }), squatHalf(100, { t: 176, an: [20, 170], af: [20, 170], p: db2 })], 0.4, 0.3);
   A.jump_squat_db = an([squatHalf(100, { an: [2, 0], af: [-2, 0], p: db2 }), air(100, 122, { an: [2, 0], af: [-2, 0], p: db2 })], 0.3, 0.25);
 
@@ -330,6 +341,8 @@
   A.pallof = an([palF([-20, -160], [20, 160]), palF([-28, -40], [28, 40])], 1.0, 1.0);
   // isométrie bras tendu au sol : vue de dessus, un bras en T qui pousse vers le sol
   A.elbow_iso_floor = an([top([90, 90], [-4, -4], { p: [{ k: 'label', x: 30, y: -16, txt: 'Vue de dessus' }] }), top([92, 92], [-4, -4], { p: [{ k: 'label', x: 10, y: -16, txt: 'Vue de dessus · paume poussée au sol' }] })], 0.6, 1.2);
+  // pectoraux isométriques (2023) : sur le dos, bras tendu à 90° du corps, paume vers le haut qui pousse sous un objet fixe ou une haltère très lourde
+  A.pec_iso = an([top([90, 90], [-4, -4], { p: [{ k: 'label', txt: 'Vue de dessus · sur le dos' }, { k: 'db', j: 'hn' }] }), top([92, 92], [-4, -4], { p: [{ k: 'label', txt: 'Paume vers le haut, pousse vers le plafond' }, { k: 'db', j: 'hn' }] })], 0.6, 1.2);
   // pont fessier avec haltère sur les hanches
   A.bridge_db = an([sup2({ ik: feet(122), p: [{ k: 'db', j: 'hip' }] }), sup2({ t: -66, ik: feet(122), p: [{ k: 'db', j: 'hip' }] })]);
   // frappe : vue de face en 2e vue
