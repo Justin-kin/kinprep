@@ -246,7 +246,7 @@
     }
     return null;
   }
-  function stepFor(ex) { return ex.eq.some(r => r.includes('barre')) ? 2.5 : ex.eq.some(r => r.includes('kettlebell')) && !ex.eq.some(r => r.includes('halteres')) ? 4 : 1; }
+  function stepFor(ex) { return ex.eq.some(r => r.includes('barre')) ? 1 : /* barre : disques de 0,5 / 1 / 2 kg par côté → +1, +2, +4 kg */ ex.eq.some(r => r.includes('kettlebell')) && !ex.eq.some(r => r.includes('halteres')) ? 4 : 1; }
   function maxFor(ex, profile) {
     const m = profile.max || {};
     if (ex.eq.some(r => r.includes('barre'))) return m.barre || null;
@@ -268,12 +268,25 @@
       return { kg, start: true, txt: `Charge de départ indicative pour ton niveau. Ajuste pour finir à RPE ${String(pr.rpe).replace(".", ",")}.` };
     }
     if (!lp) return { kg: null, txt: `Choisis une charge pour finir chaque série à RPE ${pr.rpe} (≈ ${Math.max(0, Math.round(10 - pr.rpe))} répétition${10 - pr.rpe >= 2 ? 's' : ''} en réserve).` };
-    const reps = typeof pr.r === 'number' ? pr.r : 8;
-    let kg = e1rm(+lp.kg, +lp.r, +lp.rpe || 8) / (1 + (reps + (10 - pr.rpe)) / 30);
-    const st = stepFor(ex); kg = Math.round(kg / st) * st;
+    // progression comme la préparation 2023 : on part de la dernière charge et on suit le RPE ressenti (pas de conversion par les répétitions,
+    // donc pas de saut au changement de bloc). Quatre groupes : lourds, haltères moyens, petites charges, explosifs chargés.
+    const st = stepFor(ex), base = +lp.kg, rpe = +lp.rpe || 0;
+    const expl = ex.pats.some(x => ['POWER_OLY', 'POWER_ROT', 'CORE_ROT'].includes(x)) || ['reverse_snatch', 'jump_squat_db'].includes(ex.id);
+    const heavy = !expl && (ex.eq.some(r => r.includes('barre')) || base > 20), small = !expl && !heavy && base < 5;
+    const r1 = v => Math.round(v / st) * st;
+    let add = 0;
+    if (!rpe) add = 0;
+    else if (rpe >= 10) add = -Math.max(st, r1(base * 0.075));
+    else if (heavy) add = rpe <= 6.5 ? Math.min(7, Math.max(st, r1(base * 0.17))) : rpe <= 7.5 ? Math.max(st, r1(base * 0.10)) : rpe <= 8 ? 2 : 0;
+    else if (small) add = rpe <= 7.5 ? st : 0;
+    else if (expl) add = rpe <= 6.5 ? 2 * st : rpe <= 8 ? st : 0;
+    else add = rpe <= 6.5 ? 2 * st : rpe <= 7.5 ? st : 0;
+    let kg = Math.max(ex.load === 'lest' ? 0 : st, base + add);
     const mx = maxFor(ex, profile);
-    if (mx && kg > mx) return { kg: mx, capped: true, txt: `Charge max de ton matériel (${mx} kg) : ajoute 2 répétitions ou descends en 3 secondes.` };
-    return { kg, txt: `Basé sur ta dernière série : ${lp.kg} kg × ${lp.r} à RPE ${lp.rpe || '?'}.` };
+    if (mx && kg > mx) return { kg: mx, capped: true, txt: `Charge max de ton matériel (${String(mx).replace('.', ',')} kg) : ajoute 2 répétitions ou descends en 3 secondes.` };
+    const fk = v => String(Math.round(v * 10) / 10).replace('.', ',');
+    const why = !rpe ? 'note ton RPE pour que la charge s\'ajuste' : add > 0 ? `+${fk(add)} kg` : add < 0 ? `−${fk(-add)} kg (séance très dure)` : 'même charge (RPE déjà élevé)';
+    return { kg, txt: `Ta dernière séance : ${fk(base)} kg à RPE ${rpe ? String(rpe).replace('.', ',') : '?'} → ${why}.` };
   }
 
   // ---------------- durée estimée ----------------
@@ -301,7 +314,10 @@
     const last = fam === 'puiss' || fam === 'pic' ? 'high_knees' : key === 'R2' ? 'side_plank' : 'plank';
     const ids = [ctx.eqs.has('corde') ? 'jump_rope' : 'jumping_jack', 'wall_sit', 'worlds_greatest', ctx.eqs.has('plateau') ? 'balance_pad' : 'balance', last];
     const bal = BAL[Math.min(BAL.length - 1, Math.floor((k || 0) / 2) + (fam === 'puiss' || fam === 'pic' ? 2 : 0))];
-    return { format: `2 tours de 40 s d'effort / 20 s de repos (équilibre : 20 s par jambe, ${bal})`, items: ids.map(id => KP.EX_BY_ID[id]) };
+    // zone douloureuse : on remplace les exercices d'échauffement qui la sollicitent (retour testeur 25/11)
+    const okW = e => e && !(e.zones || []).some(z => ctx.pain.has(z)) && feasible(e, ctx.eqs), spare = ['arm_circles', 'bird_dog', 'dead_bug', 'inchworm', 'leg_swing'].map(id => KP.EX_BY_ID[id]).filter(okW);
+    const items = []; ids.map(id => KP.EX_BY_ID[id]).forEach(e => { const x = okW(e) ? e : spare.find(y => !items.includes(y)); if (x && !items.includes(x)) items.push(x); });
+    return { format: `2 tours de 40 s d'effort / 20 s de repos (équilibre : 20 s par jambe, ${bal})`, items };
   }
 
   // ---------------- construction d'une séance de renfo ----------------
@@ -359,6 +375,7 @@
         const tempo = JUMP_CUE[ex.id] ? JUMP_CUE[ex.id] : ['plyo', 'power'].includes(slot.kind) ? 'Le plus vite possible à chaque répétition, récupération complète'
           : slot.kind === 'main' && ['puiss', 'pic'].includes(fam0) ? 'Descente contrôlée, montée la plus rapide possible'
           : (typeof tempo0 !== 'undefined' && tempo0) || ex.tempo || '';
+        if (/Charge lourde/.test(note) && !['kg', 'lest'].includes(ex.load)) note = note.replace('Charge lourde, remonte le plus vite possible', 'Version la plus dure que tu maîtrises, remonte le plus vite possible'); // poids du corps
         const rpR = profile.reprise && profile.reprise.renfo;
         if (rpR && (ex.load === 'kg' || ex.load === 'lest')) { p.reprise = 1 - rpR.f; note = `Reprise après ${rpR.gap >= 4 ? '4 semaines ou plus' : rpR.gap + ' semaines'} sans renfo : charge −${Math.round(rpR.f * 100)} %` + (note ? ' · ' + note : ''); }
         const rz = ex.zones.filter(z => profile.painResolved && Date.now() - (profile.painResolved[z] || 0) < 7 * 864e5);
@@ -412,6 +429,10 @@
   const DEB = (n, m) => ({ label: `${n} déboulés de ${m} m`, type: 'deb', min: 0, detail: 'Pendant l\'endurance (compris dans sa durée) : accélération progressive jusqu\'à 80 %, puis reprise du footing.' });
 
   const cardioMin = blocks => blocks.reduce((a, b) => a + (b.min || 0), 0); // la durée affichée = celle des blocs, déboulés compris dans l'endurance
+  function painFilterDrills(blocks, profile) {
+    const pain = painSet(profile); if (!pain.size) return blocks;
+    return blocks.map(b => b.drills ? Object.assign({}, b, { drills: b.drills.filter(d => !(d.ex.zones || []).some(z => pain.has(z))) }) : b);
+  }
   function cardioSessions(n, profile) {
     const { phase, wtype, wi, k } = C.phaseOf(n);
     const vma = +profile.vma || null, role = profile.role || 'pointe';
@@ -425,6 +446,7 @@
         blocks = ef ? [blocks[0], WU(true), ...blocks.slice(1), CD()] : [WU(), ...blocks, CD()];
       }
       else if (blocks[0] && blocks[0].type === 'ef') blocks = [Object.assign({}, blocks[0], { detail: 'Démarre les 5 premières minutes plus lentement, termine par 2-3 min de marche. ' + blocks[0].detail }), ...blocks.slice(1)];
+      blocks = painFilterDrills(blocks, profile).filter(b => !b.drills || b.drills.length || b.type !== 'role');
       out.push(Object.assign({ key, kind: 'cardio', title, essential, blocks, min: cardioMin(blocks) }, o || {}));
     };
     const fam = phase.id;
@@ -478,12 +500,15 @@
     ev.forEach(e => { const w = (C.EVENT_WEIGHT[e.type] || 0) + (e.matches > 1 ? 1 : 0); if (w) { score += w; why.push(e.label); } });
     const club = ci.club != null ? +ci.club : (C.clubActive(n) ? (profile.clubN != null ? +profile.clubN : 2) : 0);
     score += club; if (club) why.push(`${club} entraînement${club > 1 ? 's' : ''} club`);
-    (ci.extra || []).forEach(x => { score += +x.w || 1; why.push(x.label); });
+    let sportW = 0; (ci.extra || []).forEach(x => { if (x.k === 'sport') sportW += +x.w || 1; else score += +x.w || 1; why.push(x.label); });
     const vie = +ci.vie || 0; score += vie; if (vie) why.push(vie === 1 ? 'semaine chargée' : 'semaine très chargée');
     const fat = +ci.fatigue || 3; if (fat > 3) { score += (fat - 3) * 1.5; why.push('fatigue élevée'); }
     if (profile.strain && profile.strain[n]) { score += 1; why.push('séances très dures la semaine passée'); }
+    const courb = +ci.courb || 1; if (courb >= 4) { score += courb - 3; why.push('courbatures fortes'); } // 4 → +1, 5 → +2
     const sleep = +ci.sommeil || 3; if (sleep < 3) { score += 1; why.push('sommeil insuffisant'); }
-    let mode = score <= 5 ? 'normal' : score <= 7 ? 'allege' : score <= 9 ? 'minimal' : 'repos';
+    const modeOf = sc => sc <= 5 ? 'normal' : sc <= 7 ? 'allege' : sc <= 9 ? 'minimal' : 'repos';
+    // un autre sport peut au plus faire passer la semaine en « allégée » (jamais minimale ou récup à lui seul)
+    let mode = modeOf(score); if (sportW) { const m2 = modeOf(score + sportW); if (m2 !== mode) mode = mode === 'normal' ? 'allege' : mode; } score += sportW;
     if (ci.mode && ci.mode !== 'auto') mode = ci.mode;
     return { score, mode, why, events: ev, club };
   }
@@ -494,6 +519,23 @@
     repos: { label: 'Récupération', desc: 'Mobilité et récupération active seulement.' },
   };
 
+  // séance de cardio plus longue que la durée max choisie : on raccourcit dans cet ordre
+  // retour au calme et échauffement → endurance (≥ 20') → blocs d'intermittent (jamais moins de 2) → répétitions → sprints répétés → vitesse spécifique
+  function fitCardio(sess, maxMin) {
+    const upd = (b, o) => Object.assign({}, b, o);
+    const steps = [
+      b => b.type === 'cd' && b.min > 5 ? upd(b, { min: 5, label: 'Retour au calme 5\'', drills: (b.drills || []).map(d => d.ex.id === 'run' ? Object.assign({}, d, { v: '4 min' }) : d) }) : b,
+      b => b.type === 'wu' && b.min > 10 ? upd(b, { min: 10, label: 'Échauffement 10\'', drills: (b.drills || []).map(d => d.ex.id === 'run' ? Object.assign({}, d, { v: '5 min, très facile' }) : d) }) : b,
+      b => { const fl = maxMin <= 30 ? 10 : 20; return b.type === 'ef' && b.min > fl ? (m => upd(b, { min: m, label: b.label.replace(/\d+'/, m + "'") }))(Math.max(fl, b.min - Math.max(5, cardioMin(sess.blocks) - maxMin))) : b; },
+      b => b.type === 'int' && b.sets > 2 ? (k => upd(b, { sets: k, label: b.label.replace(/: \d+ × \d+/, `: ${k} × ${b.reps}`), min: Math.round(k * b.reps * (b.on + b.off) / 60 + (k - 1) * 3) }))(b.sets - 1) : b,
+      b => b.type === 'int' && b.reps > 6 ? (r => upd(b, { reps: r, label: b.label.replace(/: \d+ × \d+/, `: ${b.sets} × ${r}`), detail: b.detail.replace(/^\d+ ×/, `${r} ×`), min: Math.round(b.sets * r * (b.on + b.off) / 60 + (b.sets - 1) * 3) }))(b.reps - 2) : b,
+      b => b.type === 'rsa' && /: 3 ×/.test(b.label) ? upd(b, { label: b.label.replace(': 3 ×', ': 2 ×'), min: 8 }) : b,
+      b => b.type === 'role' && b.min > 8 ? upd(b, { min: 8, drills: (b.drills || []).map(d => Object.assign({}, d, { v: d.v.replace(/(\d+)/, m => Math.max(2, Math.round(m * 0.66))) })) }) : b,
+      b => b.type === 'spr' && /^\d+/.test(b.label) ? (n => n > 4 ? upd(b, { label: b.label.replace(/^\d+/, n - 2), min: Math.round((n - 2) * 1.2) }) : b)(parseInt(b.label)) : b,
+    ];
+    for (let pass = 0; pass < 4; pass++) for (const f of steps) { if (cardioMin(sess.blocks) <= maxMin) break; sess.blocks = sess.blocks.map(f); }
+    sess.min = cardioMin(sess.blocks);
+  }
   function applyMode(sess, mode, maxMin, wtype) {
     const light = ['deload', 'taper', 'comp', 'light', 'recup'].includes(wtype);
     if (sess.kind === 'renfo') {
@@ -514,7 +556,7 @@
       // D'abord le moins pertinent ; à pertinence égale, on tourne chaque semaine pour ne pas sacrifier toujours le même.
       const RANK = { acc: 0, core: 0, iso: 0 }; // le reste (prévention, secondaires, Nordic, frappe, sauts) à égalité : on tourne
       let drops = 0;
-      while (maxMin && sess.min > maxMin + 2 && drops < 4) {
+      while (maxMin && sess.min > maxMin && drops < 4) {
         const cand = []; sess.blocks.forEach(b => { if (!b.shoulder) b.items.forEach(i => { if (i.kind !== 'main' && !i.fixed && !i.pair && !(i.pats || []).includes('ELBOW_PREV')) cand.push(i); }); });
         const pairs = sess.blocks.filter(b => !b.shoulder && b.items.filter(i => i.pair).length === 2 && !b.items.some(i => (i.pats || []).includes('POWER_ROT'))); // la frappe reste toujours
         if (!cand.length || (drops >= 2 && pairs.length >= 3)) { // après 2 compléments (ou s'il n'y en a plus) : une paire entière, jamais la moitié
@@ -530,7 +572,7 @@
       }
       // en dernier recours seulement : 2 séries sur les principaux (une série en moins à la fois, en partant des plus longs)
       let g2 = 0;
-      while (maxMin && sess.min > maxMin + 2 && g2++ < 6) {
+      while (maxMin && sess.min > maxMin && g2++ < 6) {
         const mains = []; sess.blocks.forEach(b => b.items.forEach(i => { if (i.kind === 'main' && !i.fixed && i.p.s > 2) mains.push(i); }));
         if (!mains.length) break;
         const i = mains.sort((x, y) => (setSec(y) + (y.p.rest || 0)) - (setSec(x) + (x.p.rest || 0)))[0];
@@ -552,22 +594,23 @@
       });
       sess.min = cardioMin(sess.blocks);
     }
+    if (sess.kind === 'cardio' && maxMin) fitCardio(sess, maxMin);
     return sess;
   }
 
   // ---------------- placement des jours ----------------
-  function placeDays(sessions, n, profile, load) {
+  function placeDays(sessions, n, profile, load, taken0) {
     const avail = profile.days && profile.days.length ? profile.days : [0, 1, 2, 3, 4, 5, 6];
     const clubDays = C.clubActive(n) ? (profile.clubDays || [1, 3]) : [];
     const evDays = load.events.filter(e => C.EVENT_WEIGHT[e.type]).flatMap(e => Array.from({ length: e.days }, (_, i) => e.dow + i)).filter(d => d < 7);
-    const taken = {};
+    const taken = Object.assign({}, taken0 || {});
     sessions.forEach(s => {
       let best = null, bs = -1e9;
       for (const d of avail) {
         let sc = 0;
         if (evDays.includes(d)) sc -= 100;
         if (s.activ) { if (evDays.includes(d + 1)) sc += 30; else if (evDays.includes(d + 2)) sc += 20; }
-        else if (evDays.includes(d + 1)) sc -= s.kind === 'renfo' || (s.blocks && s.blocks.some(b => ['int', 'rsa', 'spr'].includes(b.type))) ? 12 : 3;
+        else if (evDays.includes(d + 1)) sc -= s.kind === 'renfo' || (s.blocks && s.blocks.some(b => ['int', 'rsa', 'spr', 'role'].includes(b.type))) ? 40 : 3; // jamais d'intense la veille d'un match (mieux vaut 2 séances le même jour)
         if (evDays.includes(d + 2) && s.kind === 'renfo' && !s.activ) sc -= 5;
         if (evDays.includes(d - 1)) sc -= 4;
         if (clubDays.includes(d)) sc -= 6;
@@ -601,7 +644,15 @@
     tplFor().forEach(([tk, ess], i) => {
       const key = 'R' + (i + 1);
       const s = buildRenfo(tk, key, n, profile, { lieu: lieux[key], avoid: usedWeek });
-      s.essential = ess; s.pace = Math.max(0.8, Math.min(1.4, +profile.paceK || 1)); sess.push(s);
+      s.essential = ess; s.pace = Math.max(0.8, Math.min(1.4, +profile.paceK || 1));
+      // option « séance A en 2 parties » : A1 et A2, chacune avec échauffement et bloc épaule, durée max par partie
+      if (i === 0 && profile.splitA && !s.activ && !s.circuit) {
+        ['A', 'B'].forEach((x, h) => {
+          const full = lieux[key + x] && lieux[key + x] !== lieux[key] ? buildRenfo(tk, key, n, profile, { lieu: lieux[key + x], avoid: new Set() }) : s;
+          const part = splitHalf(full, h);
+          sess.push(Object.assign({}, full, part, { key: key + x, title: `${full.title} · partie ${h + 1}/2`, essential: ess, pace: s.pace, half: h + 1 }));
+        });
+      } else sess.push(s);
       s.blocks.forEach(b => { if (!b.shoulder) b.items.forEach(it => { if (!(it.pats || []).includes('ELBOW_PREV')) usedWeek.add(it.ex.id); }); });
     });
     cardioSessions(n, profile).forEach(c => sess.push(c));
@@ -614,11 +665,27 @@
     if (mode === 'repos') list = [{ key: 'M', kind: 'mobilite', title: 'Mobilité et récupération', essential: true, min: 20, items: ['worlds_greatest', 'leg_swing', 'arm_circles', 'inchworm', 'bird_dog', 'dead_bug'].map(id => KP.EX_BY_ID[id]) }];
     list.forEach(s => {
       if (s.kind === 'renfo') applyMode(s, mode, +profile.maxMin || 60, ph.wtype);
-      if (s.kind === 'cardio') applyMode(s, mode);
+      if (s.kind === 'cardio') applyMode(s, mode, +profile.maxMinC || 60);
     });
     placeDays(list.filter(s => s.essential === true || s.essential === 'conseillee'), n, profile, load);
-    placeDays(list.filter(s => !(s.essential === true || s.essential === 'conseillee')), n, Object.assign({}, profile, { days: (profile.days || [0, 1, 2, 3, 4, 5, 6]).filter(d => !list.some(x => x.day === d)) }), load);
+    const used = {}; list.forEach(x => { if (x.day != null) used[x.day] = x.kind; });
+    placeDays(list.filter(s => !(s.essential === true || s.essential === 'conseillee')), n, profile, load, used);
     return { n, ph, load, mode, sessions: list, hidden: sess.filter(s => !list.includes(s)) };
+  }
+
+  // moitié h (0 ou 1) d'une séance : blocs principaux en alternance (haut / bas du corps mélangés),
+  // dernier bloc (prévention, compléments) partagé : Nordic dans la 1re partie, le reste réparti
+  function splitHalf(sess0, h) {
+    const sh = sess0.blocks.filter(b => b.shoulder), main = sess0.blocks.filter(b => !b.shoulder);
+    if (main.length < 2) return { blocks: sess0.blocks.slice() };
+    const last = main[main.length - 1], body = main.slice(0, -1);
+    const mine = body.filter((b, k) => k % 2 === h);
+    const ecc = last.items.filter(i => i.kind === 'ecc'), rest = last.items.filter(i => i.kind !== 'ecc');
+    const lastItems = h === 0 ? ecc.concat(rest.filter((i, k) => k % 2 === 1)) : rest.filter((i, k) => k % 2 === 0);
+    const blocks = sh.map(b => Object.assign({}, b, { items: b.items.slice() })).concat(mine.map(b => Object.assign({}, b, { items: b.items.slice() })));
+    if (lastItems.length) blocks.push(Object.assign({}, last, { items: lastItems }));
+    let gi = 0; blocks.forEach(b => { if (!b.shoulder) b.grp = String.fromCharCode(65 + gi++); });
+    return { blocks };
   }
 
   // ---------------- remplacements ----------------
