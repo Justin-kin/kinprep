@@ -150,7 +150,8 @@
     P({ a: ['tn', 104, G - 8], t: 180, ln: [-2, -2, 40], lf: [70, -30, 90], an: [120, 140], af: [120, 140], p: [{ k: 'bench', x: 50, y: 110, w: 48 }] })], 0.6, 0.5);
   A.pistol_db = an([P({ a: ['fn', 100, G], t: 180, ln: [0, 0, 90], lf: [30, 30, 90], an: [40, 150], af: [40, 150], p: [{ k: 'box', x: 46, y: 112, w: 36 }, { k: 'db', j: 'hn' }] }), P({ a: ['fn', 100, G], t: 140, ln: [78, -30, 90], lf: [70, 80, 160], an: [70, 170], af: [70, 170], p: [{ k: 'box', x: 46, y: 112, w: 36 }, { k: 'db', j: 'hn' }] })], 1.0, 0.4);
   A.rot_db = an([P({ v: 'front', a: ['ff', 80, G], t: 178, ln: [12, 0, 90], lf: [-12, 0, -90], an: [-40, -40], af: [-40, -40], p: [{ k: 'db', j: 'hn' }] }), P({ v: 'front', a: ['ff', 80, G], t: 182, ln: [12, 0, 90], lf: [-12, 0, -90], an: [40, 40], af: [40, 40], p: [{ k: 'db', j: 'hn' }] })], 1.2, 0.4);
-  A.landmine_rot = an([P({ v: 'front', a: ['ff', 80, G], t: 178, ln: [12, 0, 90], lf: [-12, 0, -90], an: [-150, -150], af: [-150, -150], p: [{ k: 'land', from: [100, 138], to: 'hf' }] }), P({ v: 'front', a: ['ff', 80, G], t: 182, ln: [12, 0, 90], lf: [-12, 0, -90], an: [150, 150], af: [150, 150], p: [{ k: 'land', from: [100, 138], to: 'hn' }] })]);
+  const lmr = (an, t, x) => P({ v: 'front', a: ['ff', 80, G], t, ln: [12, 0, 90], lf: [-12, 0, -90], an: [an, an], af: [an, an], p: [{ k: 'land', from: [100, 138], to: x || 'hn' }] });
+  A.landmine_rot = an([lmr(180, 180), lmr(-40, 172, 'hf'), lmr(180, 180), lmr(40, 188)], 1.0, 0.3, 'loop'); // bras tendus : au-dessus de la tête → hanche gauche → au-dessus → hanche droite
   A.chop = an([P({ v: 'front', a: ['ff', 80, G], t: 176, ln: [18, -6, 90], lf: [-12, 0, -90], an: [-150, -150], af: [-150, -150], p: [{ k: 'band', from: 'hf', to: [20, 10] }] }), P({ v: 'front', a: ['ff', 80, G], t: 184, ln: [28, -16, 90], lf: [-12, 0, -90], an: [40, 30], af: [40, 30], p: [{ k: 'band', from: 'hn', to: [20, 10] }] })], 0.8, 0.3);
   A.russian_twist = an([P({ v: 'front', a: ['hip', 100, 128], t: 170, ln: [70, 30, 90], lf: [-70, -30, -90], an: [-40, -10], af: [-60, -20], p: [{ k: 'ball', j: 'hf', o: [0, 0], r: 8 }] }), P({ v: 'front', a: ['hip', 100, 128], t: 190, ln: [70, 30, 90], lf: [-70, -30, -90], an: [60, 20], af: [40, 10], p: [{ k: 'ball', j: 'hn', o: [0, 0], r: 8 }] })], 0.7, 0.2);
   A.hollow = an([supine({ a: ['hip', 96, 134], t: -82, hd: -70, ln: [104, 92, 160], lf: [104, 92, 160], an: [-100, -96], af: [-100, -96] }), supine({ a: ['hip', 96, 134], t: -80, hd: -68, ln: [100, 92, 160], lf: [100, 92, 160], an: [-104, -100], af: [-104, -100] })], 1.4, 1.0);
@@ -173,7 +174,7 @@
     stand(100, { an: [180, 180], af: [-10, 0], p: dbN })], 0.5, 0.4);
   A.reverse_snatch = an([A.db_snatch.f[3], A.db_snatch.f[2], A.db_snatch.f[1], A.db_snatch.f[0]], 1.3, 0.4); // en haut puis descente freinée
   A.db_clean = an([P({ a: ['fn', 100, G], t: 130, ln: [44, -20, 90], lf: [44, -20, 90], an: [2, 0], af: [-2, 0], p: db2 }), squatHalf(100, { t: 176, an: [20, 170], af: [20, 170], p: db2 })], 0.4, 0.3);
-  A.jump_squat_db = an([squatHalf(100, { an: [2, 0], af: [-2, 0], p: db2 }), air(100, 122, { an: [2, 0], af: [-2, 0], p: db2 })], 0.3, 0.25);
+  A.jump_squat_db = an([squatHalf(100, { an: [2, 0], af: [-2, 0], p: db2 }), air(100, 104, { an: [2, 0], af: [-2, 0], p: db2 })], 0.3, 0.25);
 
   // ---------- SAUTS ----------
   A.cmj = an([stand(100, { an: [6, 6], af: [-4, -2] }), squatHalf(100, { an: [-60, -60], af: [-60, -60] }), air(100, 116)], 0.35, 0.25, 'loop');
@@ -237,7 +238,7 @@
   A.bridge_sl = an([sup2({ ik: { fn: [122, 138] }, lf: [150, 100, 160] }), sup2({ t: -66, ik: { fn: [122, 138] }, lf: [110, 110, 160] })]);
   const benchT = { k: 'bench', x: 14, y: 104, w: 40 };
   A.hip_thrust = an([P({ a: ['sc', 50, 100], t: -125, hd: -110, an: [100, 20], af: [100, 20], ik: feet(128), p: [benchT, { k: 'bar', j: 'hip' }] }), P({ a: ['sc', 50, 100], t: -88, hd: -96, an: [100, 20], af: [100, 20], ik: feet(128), p: [benchT, { k: 'bar', j: 'hip' }] })]);
-  A.ham_slide = an([sup2({ t: -80, ln: [98, 92, 170], lf: [98, 92, 170], p: [{ k: 'pad', x: 160, y: 136, w: 14, h: 4 }] }), sup2({ t: -64, ik: feet(120), ln: [0, 0, 170], lf: [0, 0, 170], p: [{ k: 'pad', x: 116, y: 136, w: 14, h: 4 }] })], 1.4, 0.3);
+  A.ham_slide = an([sup2({ t: -78, ik: feet(166), ln: [0, 0, 170], lf: [0, 0, 170], p: [{ k: 'pad', x: 160, y: 136, w: 14, h: 4 }] }), sup2({ t: -64, ik: feet(120), ln: [0, 0, 170], lf: [0, 0, 170], p: [{ k: 'pad', x: 116, y: 136, w: 14, h: 4 }] })], 1.4, 0.3);
   A.ham_swiss = an([sup2({ t: -80, ln: [96, 94, 170], lf: [96, 94, 170], p: [{ k: 'swiss', x: 166, y: 122, r: 18 }] }), sup2({ t: -62, ik: { fn: [128, 108, -1], ff: [126, 108, -1] }, ln: [0, 0, 140], lf: [0, 0, 140], p: [{ k: 'swiss', x: 138, y: 122, r: 18 }] })], 1.3, 0.3);
   A.ham_iso = an([sup2({ t: -88, ik: { fn: [130, 116], ff: [128, 116] }, p: [{ k: 'box', x: 122, y: 120, w: 40 }] }), sup2({ t: -74, ik: { fn: [130, 116], ff: [128, 116] }, p: [{ k: 'box', x: 122, y: 120, w: 40 }] })], 1.5, 1.0);
   A.floor_press = an([sup2({ a: ['sc', 60, 134], an: [180, 180], af: [180, 180], ik: feet(132), p: db2 }), sup2({ a: ['sc', 60, 134], an: [-84, 176], af: [-84, 176], ik: feet(132), p: db2 })]);
@@ -250,7 +251,7 @@
   const puk = (t, hx) => P({ a: ['kn', 64, 134], t, hd: t + 4, ln: [t - 180, -100, -100], lf: [t - 180, -100, -100], an: [0, 0], af: [0, 0], ik: { hn: [hx, G, 1], hf: [hx - 2, G, 1] } });
   A.push_up_knee = an([puk(123, 126), puk(104, 126)]);
   const pukA = (t, hx, hy) => P({ a: ['kn', 64, 134], t, hd: t + 4, ln: [t - 180, -100, -100], lf: [t - 180, -100, -100], an: [0, 0], af: [0, 0], ik: { hn: [hx, hy, 1], hf: [hx - 2, hy, 1] } });
-  A.push_up_plyo_knee = an([pukA(104, 126, G), pukA(128, 128, G - 12), pukA(104, 126, G)], 0.4, 0.1, 'loop');
+  A.push_up_plyo_knee = an([pukA(104, 126, G), Object.assign(pukA(128, 128, G - 12), { p: [{ k: 'label', txt: 'Clap !' }] }), pukA(104, 126, G)], 0.4, 0.1, 'loop');
   const benchI = { k: 'bench', x: 106, y: 108, w: 60 };
   A.push_up_incline = an([pu(131, 118, 108, { a: ['fn', 30, 132], p: [benchI] }), pu(116, 118, 108, { a: ['fn', 30, 132], p: [benchI] })]);
   const pl = (t, o = {}) => P(Object.assign({ a: ['fn', 34, 132], t, hd: t + 4, ln: [t - 180, t - 180, 30], lf: [t - 180, t - 180, 30], an: [0, 0], af: [0, 0], ik: { hn: [164, 137, 1], hf: [162, 137, 1] } }, o));
@@ -307,7 +308,7 @@
   A.frappe_full = an([fArm(120, { p: [postBack, bandBack] }), fHit(120, { p: [postBack, bandBack] }), fDown(120, { p: [postBack, bandBack] })], 0.3, 0.35, 'loop');
   A.frappe_air = an([fArm(100), fHit(100), fDown(100)], 0.3, 0.35, 'loop');
   A.frappe_full_ball = an([fArm(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fHit(110, { p: [{ k: 'ball', x: 164, y: 20, r: 14 }] }), fDown(110, { p: [{ k: 'ball', x: 186, y: 4, r: 14 }] })], 0.3, 0.35, 'loop');
-  A.frappe_step = an([fArm(80, { lf: [6, -4, 90], ik: { fn: [66, 138, -1] } }), fArm(112, { ik: { fn: [66, 138, -1] } }), fHit(112, { ik: { fn: [70, 138, -1] } }), fDown(112, { ik: { fn: [72, 138, -1] } })], 0.3, 0.25, 'loop');
+  A.frappe_step = an([fArm(80, { lf: [6, -4, 90], ik: { fn: [66, 138, -1] }, p: [{ k: 'label', txt: '1 pas d\'élan, puis appuis plantés' }] }), fArm(112, { ik: { fn: [66, 138, -1] } }), fHit(112, { ik: { fn: [70, 138, -1] } }), fDown(112, { ik: { fn: [72, 138, -1] } })], 0.3, 0.25, 'loop');
   A.straight_pulldown = an([stand(100, { ln: [6, -6, 90], lf: [-6, -2, 90], t: 176, an: [160, 164], af: [156, 160], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] }), stand(100, { ln: [10, -10, 90], lf: [-4, -2, 90], t: 168, an: [-14, -10], af: [-10, -8], p: [{ k: 'band', from: 'hn', to: [186, -10] }, { k: 'wall', x: 188, top: -20 }] })], 0.3, 0.45);
   A.rot_throw_diag = an([P({ v: 'front', a: ['ff', 76, G], t: 174, ln: [26, -8, 90], lf: [-14, 4, -90], an: [-20, -10], af: [-34, -20], p: [{ k: 'ball', j: 'hf', o: [-2, 2] }, { k: 'wall', x: 190, top: -10 }] }),
     P({ v: 'front', a: ['ff', 76, G], t: 186, ln: [20, -6, 90], lf: [-6, 8, -70], an: [140, 150], af: [120, 140], p: [{ k: 'ball', x: 172, y: 8 }, { k: 'wall', x: 190, top: -10 }] })], 0.35, 0.5);
@@ -319,7 +320,7 @@
   // rotation externe couché sur le côté : vu de face, corps à l'horizontale sur le banc, avant-bras qui passe du ventre vers le plafond
   const erS = fa => P({ a: ['hip', 92, 97], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [-90, fa], af: [96, 176], p: [{ k: 'bench', x: 46, y: 104, w: 112 }, { k: 'db', j: 'hn' }] });
   // couché sur le flanc : bras du dessus tendu, de la verticale vers le bas à la verticale vers le haut
-  const erF = a2 => P({ a: ['hip', 92, 94], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [a2, a2], af: [96, 176], p: [{ k: 'bench', x: 46, y: 101, w: 112 }, { k: 'db', j: 'hn' }, { k: 'label', x: 40, y: 40, txt: 'Bras du dessus' }] });
+  const erF = a2 => P({ a: ['hip', 92, 80], t: 90, hd: 96, ln: [-90, -90, 180], lf: [-92, -90, 180], an: [a2, a2], af: [96, 176], p: [{ k: 'bench', x: 46, y: 87, w: 112 }, { k: 'db', j: 'hn' }, { k: 'label', x: 40, y: 40, txt: 'Bras du dessus' }] });
   A.ext_rot_side = an([erF(2), erF(178)], 1.4, 0.6);
   // assis, coude sur le genou : avant-bras de l'horizontale à la verticale (vue de face)
   const erK = fa => P({ v: 'front', a: ['hip', 96, 104], t: 180, hd: 180, ln: [138, 12, 90], lf: [-20, 0, -90], an: [62, fa], af: [-20, -8], p: [{ k: 'bench', x: 56, y: 108, w: 84 }, { k: 'db', j: 'hn' }, { k: 'label', x: 40, y: 20, txt: 'Coude posé sur le genou' }] });
@@ -349,7 +350,6 @@
   A['frappe_full@2'] = an([P({ v: 'front', a: ['ff', 84, G], t: 176, ln: [24, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [-110, -100] }), P({ v: 'front', a: ['ff', 84, G], t: 182, ln: [22, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [130, 140] }), P({ v: 'front', a: ['ff', 84, G], t: 178, ln: [22, -4, 90], lf: [-18, 0, -90], an: [-10, -6], af: [30, 24] })], 0.3, 0.35, 'loop');
   A['frappe_air@2'] = A['frappe_full@2'];
   // 2e vues (exercices difficiles à lire sous un seul angle)
-  A['ext_rot_90@2'] = an([stand(100, { an: [90, 90], af: [-4, -2] }), stand(100, { an: [90, 180], af: [-4, -2] })], 1.0, 0.4);
   A['face_pull@2'] = an([P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [8, 0, 90], lf: [-8, 0, -90], an: [20, 30], af: [-20, -30] }), P({ v: 'front', a: ['ff', 88, G], t: 180, ln: [8, 0, 90], lf: [-8, 0, -90], an: [110, 200], af: [-110, -200] })]);
   A['rot_band@2'] = an([fArm(110, { af: [-30, -20], an: [-60, -40], p: [{ k: 'band', from: 'hn', to: [14, 110] }, { k: 'wall', x: 14, top: 80 }] }), fHit(110, { an: [100, 100], af: [-30, -20], p: [{ k: 'band', from: 'hn', to: [14, 110] }, { k: 'wall', x: 14, top: 80 }] })], 0.35, 0.4);
   A['rot_band_high@2'] = an([fArm(110, { p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] }), fHit(110, { an: [96, 96], p: [{ k: 'band', from: 'hn', to: [14, 72] }, { k: 'wall', x: 14, top: 50 }] })], 0.35, 0.4);
@@ -366,4 +366,16 @@
   A.hop_rot = A.lat_bound_rot;
 
   KP.ANIMS = A;
+
+  // ---- 2es vues ajoutées le 26/11 (mouvement clé invisible dans la vue principale) ----
+  const L2 = txt => ({ k: 'label', txt });
+  // isométriques au sol : de profil, allongé (sur le ventre / sur le dos), bras sur le côté au sol
+  A['elbow_iso_floor@2'] = an([P({ a: ['hip', 110, 128], t: 90, hd: 90, ln: [-90, -92, 0], lf: [-90, -92, 0], an: [-88, -88], af: [-88, -88], p: [L2('De profil · allongé sur le ventre, un peu tourné'), { k: 'txt', x: 100, y: 100, txt: 'bras tendu sur le côté, paume au sol' }] })]);
+  A['pec_iso@2'] = an([P({ a: ['hip', 110, 128], t: -90, hd: -90, ln: [90, 92, 180], lf: [90, 92, 180], an: [0, 0], af: [0, 0], p: [L2('De profil · allongé sur le dos'), { k: 'db', j: 'hn' }, { k: 'txt', x: 150, y: 112, txt: 'pousse vers le plafond' }] })]);
+  // étoile 4 plots : vue de dessus, le joueur va toucher chaque plot et revient au centre
+  // vue de dessus schématique : le joueur (point) et les 4 plots
+  const starT = (x, y, txt) => P({ a: ['hip', -400, 80], p: [L2(txt), { k: 'mark', x: 100, y: 22 }, { k: 'mark', x: 100, y: 128 }, { k: 'mark', x: 30, y: 75 }, { k: 'mark', x: 170, y: 75 }, { k: 'ball', x, y, r: 9 }, { k: 'txt', x: 100, y: 146, txt: 'le rond = toi' }] });
+  A['star@2'] = an([starT(100, 75, 'Vue de dessus · 4 plots à 2 m'), starT(100, 34, 'Touche un plot…'), starT(100, 75, '…reviens au centre'), starT(158, 75, 'puis le suivant')], 0.5, 0.2, 'loop');
+  // fente + rotation thoracique : de face, la main monte vers le plafond en ouvrant le buste
+  A['worlds_greatest@2'] = an([P({ v: 'front', a: ['ff', 70, G], t: 160, ln: [40, -30, 90], lf: [-20, -60, -90], an: [10, 0], af: [-10, 0], p: [L2('De face · main au sol')] }), P({ v: 'front', a: ['ff', 70, G], t: 168, ln: [40, -30, 90], lf: [-20, -60, -90], an: [180, 180], af: [-10, 0], p: [L2('Ouvre le buste, bras vers le plafond')] })], 1.0, 0.6);
 })(window.KP);

@@ -244,7 +244,7 @@
   KP.EX_BY_ID = {};
   L.forEach(e => (KP.EX_BY_ID[e.id] = e));
   KP.animOf = ex => KP.ANIMS[ex.anim] || KP.ANIMS.other;
-  KP.hasView2 = ex => !!(ex && KP.ANIMS[ex.anim + '@2']);
+  KP.hasView2 = ex => !!(ex && KP.ANIMS[ex.anim + '@2']) && !(KP.m3d && KP.m3d.has(ex)); // en 3D, l'angle se choisit librement
 })(window.KP = window.KP || {});
 
 /* Charges de départ de référence (préparation 2023, profil moyen à haut). Niveau 3 = 120 %, 2 = 80 %, 1 = 60 %. */

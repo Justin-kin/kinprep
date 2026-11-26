@@ -80,6 +80,8 @@
     if (k === 'loop') { const a = resolve(J, pr.a), b = resolve(J, pr.b); return `<path class="band" d="M${pt(a)} L${pt(b)}"/>`; }
     if (k === 'rope') { const a = resolve(J, pr.a), b = resolve(J, pr.b); const y = pr.y != null ? pr.y : GROUND + 1; const mx = (a[0] + b[0]) / 2; return `<path class="rope" d="M${pt(a)} Q${f1(mx - (pr.dx || 0))} ${f1(y + (y - a[1]) * 0.35)} ${pt(b)}"/>`; }
     if (k === 'land') { const a = resolve(J, pr.from), b = resolve(J, pr.to); return `<g class="eq"><path d="M${pt(a)} L${pt(b)}" stroke-width="4"/><circle cx="${f1(b[0] + (b[0] - a[0]) * 0.08)}" cy="${f1(b[1] + (b[1] - a[1]) * 0.08)}" r="8"/></g>`; }
+    if (k === 'mark') return `<path class="cone" d="M${pr.x - 5} ${pr.y + 4} L${pr.x} ${pr.y - 6} L${pr.x + 5} ${pr.y + 4} Z"/>`; // plot vu de dessus
+    if (k === 'txt') return `<text x="${pr.x}" y="${pr.y}" text-anchor="middle" font-size="9" fill="currentColor">${pr.txt}</text>`;
     if (k === 'cone') return `<path class="cone" d="M${pr.x - 6} ${GROUND} L${pr.x} ${GROUND - 13} L${pr.x + 6} ${GROUND} Z"/>`;
     if (k === 'mat') return `<rect class="mat" x="${pr.x || 30}" y="${GROUND}" width="${pr.w || 140}" height="4" rx="2"/>`;
     if (k === 'pad') return `<rect class="mat" x="${f1(pr.x)}" y="${f1(pr.y)}" width="${pr.w || 18}" height="${pr.h || 6}" rx="3"/>`;
@@ -88,7 +90,7 @@
     return '';
   }
 
-  const BACK = new Set(['bench', 'box', 'wall', 'pull', 'swiss', 'mat', 'pad', 'cone', 'label']);
+  const BACK = new Set(['bench', 'box', 'wall', 'pull', 'swiss', 'mat', 'pad', 'cone', 'mark', 'txt', 'label']);
 
   function render(pose) {
     const J = solve(pose);
@@ -204,6 +206,7 @@
       if (el._mounted === tag) return;
       el._mounted = tag;
       const ex = KP.EX_BY_ID[el.dataset.anim];
+      if (ex && KP.m3d && KP.m3d.has(ex) && el.dataset.view !== '2' && KP.m3d.mount(el, ex)) return; // mannequin 3D quand il existe
       mount(el, ex ? (el.dataset.view === '2' && KP.ANIMS[ex.anim + '@2']) || KP.animOf(ex) : null);
     });
   }
