@@ -10,7 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap">
-<link rel="manifest" href="manifest.webmanifest?v=202611241116"><link rel="icon" type="image/png" href="icons/icon-192.png?v=202611241116"><link rel="apple-touch-icon" href="icons/icon-192.png?v=202611241116">
+<link rel="manifest" href="manifest.webmanifest?v=202611261438"><link rel="icon" type="image/png" href="icons/icon-192.png?v=202611261438"><link rel="apple-touch-icon" href="icons/icon-192.png?v=202611261438">
 <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* Mise en page : application mobile en une colonne (max 560 px), en-tête de semaine collant, barre d'onglets en bas, séances en panneaux plein écran. */
@@ -257,6 +257,8 @@ textarea { min-height: 80px; resize: vertical; }
 .savebar .dirty-msg { display: none; color: var(--accent); font-weight: 700; text-align: center; }
 .pfdirty .savebar .dirty-msg { display: block; }
 .pfdirty .fab { display: none; }
+.page ~ .fab:not(.live) { display: none; } /* sur une séance, le minuteur ne masque pas les cartes (chaque exercice a son bouton repos) */
+#app { padding-bottom: 72px; }
 .att { display: flex; align-items: flex-start; gap: 8px; background: var(--warn-soft); color: var(--ink); border-radius: 12px; padding: 8px 12px; font-weight: 600; font-size: 14px; line-height: 1.3; }
 .att svg { width: 18px; height: 18px; flex: none; color: var(--warn); margin-top: 1px; }
 .player { overflow-y: auto; }
@@ -269,10 +271,14 @@ textarea { min-height: 80px; resize: vertical; }
 .seg-b i + span { mix-blend-mode: normal; }
 .tempo { background: var(--accent-soft); border-radius: 10px; padding: 7px 12px; font-size: 14px; }
 .rpe-txt { color: var(--muted); min-height: 18px; margin-top: 4px; }
-.stage .view-t { position: absolute; right: 8px; bottom: 8px; z-index: 2; padding: 6px 10px; font-size: 12px; }
+.stage .view-t { position: absolute; right: 6px; top: 6px; z-index: 2; padding: 4px 8px; font-size: 11px; opacity: .85; }
 .howto { background: var(--surface); border-radius: 14px; padding: 10px 12px; display: flex; flex-direction: column; gap: 8px; }
 .howto ol { margin: 4px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.3; }
 .player .stage { height: min(26vh, 240px); min-height: 130px; }
+/* action principale toujours visible (retour testeur 25/11) : « Série terminée », « Go », « Passer » collés en bas */
+.player .btn[data-a=pl-done], .player .btn[data-a=pl-go], .player .btn[data-a=pl-next] { position: sticky; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); z-index: 6; box-shadow: 0 6px 18px rgba(0,0,0,.22); }
+.player .btn.ghost[data-a=pl-done] { background: var(--bg); }
+@media (max-height: 760px) { .player .stage { height: 18vh; min-height: 100px; } }
 .att ul { margin: 0; padding-left: 16px; display: flex; flex-direction: column; gap: 2px; }
 .toast { position: fixed; left: 50%; bottom: calc(96px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 11px 16px; border-radius: 12px; z-index: 90; font-weight: 600; max-width: 90%; animation: up .2s ease; }
 .note { border-radius: 12px; padding: 12px 14px; font-size: 14px; background: var(--surface-2); }
@@ -296,18 +302,18 @@ ul.cues { margin: 0; padding-left: 18px; display: flex; flex-direction: column; 
 </head>
 <body>
 <div id="app"></div>
-<script>window.KP = window.KP || {}; KP.VER = "202611241116";</script>
-<script src="js/config.js?v=202611241116"></script>
-<script src="js/equipment.js?v=202611241116"></script>
-<script src="js/figure.js?v=202611241116"></script>
-<script src="js/anims.js?v=202611241116"></script>
-<script src="js/exercises.js?v=202611241116"></script>
-<script src="js/attention.js?v=202611241116"></script>
-<script src="js/clarity.js?v=202611241116"></script>
-<script src="js/calendar.js?v=202611241116"></script>
-<script src="js/generator.js?v=202611241116"></script>
-<script src="js/store.js?v=202611241116"></script>
-<script src="js/app.js?v=202611241116"></script>
+<script>window.KP = window.KP || {}; KP.VER = "202611261438";</script>
+<script src="js/config.js?v=202611261438"></script>
+<script src="js/equipment.js?v=202611261438"></script>
+<script src="js/figure.js?v=202611261438"></script>
+<script src="js/anims.js?v=202611261438"></script>
+<script src="js/exercises.js?v=202611261438"></script>
+<script src="js/attention.js?v=202611261438"></script>
+<script src="js/clarity.js?v=202611261438"></script>
+<script src="js/calendar.js?v=202611261438"></script>
+<script src="js/generator.js?v=202611261438"></script>
+<script src="js/store.js?v=202611261438"></script>
+<script src="js/app.js?v=202611261438"></script>
 <script>if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').then(function(r){ r.update(); }).catch(function(){});</script>
 </body>
 </html>
